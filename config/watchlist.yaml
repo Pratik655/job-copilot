@@ -1,0 +1,124 @@
+# Public ATS boards only (Greenhouse / Lever / Ashby).
+# Add or remove slugs anytime; unknown slugs are skipped.
+
+companies:
+  - name: Atlassian
+    ats: greenhouse
+    slug: atlassian
+  - name: Postman
+    ats: greenhouse
+    slug: postman
+  - name: Rippling
+    ats: greenhouse
+    slug: rippling
+  - name: Stripe
+    ats: greenhouse
+    slug: stripe
+  - name: Databricks
+    ats: greenhouse
+    slug: databricks
+  - name: Cloudflare
+    ats: greenhouse
+    slug: cloudflare
+  - name: MongoDB
+    ats: greenhouse
+    slug: mongodb
+  - name: Elastic
+    ats: greenhouse
+    slug: elastic
+  - name: Twilio
+    ats: greenhouse
+    slug: twilio
+  - name: Snowflake
+    ats: greenhouse
+    slug: snowflake
+  - name: Figma
+    ats: greenhouse
+    slug: figma
+  - name: Notion
+    ats: greenhouse
+    slug: notion
+  - name: Grafana Labs
+    ats: greenhouse
+    slug: grafanalabs
+  - name: HashiCorp
+    ats: greenhouse
+    slug: hashicorp
+  - name: Datadog
+    ats: greenhouse
+    slug: datadog
+  - name: Okta
+    ats: greenhouse
+    slug: okta
+  - name: GitLab
+    ats: greenhouse
+    slug: gitlab
+  - name: Confluent
+    ats: greenhouse
+    slug: confluent
+  - name: PagerDuty
+    ats: greenhouse
+    slug: pagerduty
+  - name: Zendesk
+    ats: greenhouse
+    slug: zendesk
+  - name: BrowserStack
+    ats: greenhouse
+    slug: browserstack
+  - name: Freshworks
+    ats: greenhouse
+    slug: freshworks
+  - name: Chargebee
+    ats: greenhouse
+    slug: chargebee
+  - name: Razorpay
+    ats: greenhouse
+    slug: razorpay
+  - name: Swiggy
+    ats: greenhouse
+    slug: swiggy
+  - name: CRED
+    ats: greenhouse
+    slug: cred
+  - name: Meesho
+    ats: greenhouse
+    slug: meesho
+  - name: PhonePe
+    ats: greenhouse
+    slug: phonepe
+  - name: Groww
+    ats: greenhouse
+    slug: groww
+  - name: Zerodha
+    ats: greenhouse
+    slug: zerodha
+  - name: Linear
+    ats: ashby
+    slug: linear
+  - name: Vercel
+    ats: ashby
+    slug: vercel
+  - name: Notion Ashby
+    ats: ashby
+    slug: notion
+  - name: OpenAI
+    ats: greenhouse
+    slug: openai
+  - name: Anthropic
+    ats: greenhouse
+    slug: anthropic
+  - name: Ramp
+    ats: ashby
+    slug: ramp
+  - name: Mercury
+    ats: ashby
+    slug: mercury
+  - name: Retool
+    ats: greenhouse
+    slug: retool
+  - name: Gusto
+    ats: greenhouse
+    slug: gusto
+  - name: Asana
+    ats: greenhouse
+    slug: asana

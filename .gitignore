@@ -147,6 +147,16 @@ activemq-data/
 # SageMath parsed files
 *.sage.py
 
+# Job copilot local data
+data/*.sqlite
+data/*.db
+data/*.sqlite3
+
+# Local copilot data
+data/
+inbox/*.md
+!inbox/.gitkeep
+
 # Environments
 .env
 .envrc

@@ -1,0 +1,78 @@
+# Public ATS boards only (Greenhouse / Lever / Ashby). Add slugs as you find them
+# on a company's careers URL, e.g. boards.greenhouse.io/stripe → slug: stripe
+companies:
+  - name: Stripe
+    ats: greenhouse
+    slug: stripe
+  - name: Databricks
+    ats: greenhouse
+    slug: databricks
+  - name: Cloudflare
+    ats: greenhouse
+    slug: cloudflare
+  - name: Twilio
+    ats: greenhouse
+    slug: twilio
+  - name: MongoDB
+    ats: greenhouse
+    slug: mongodb
+  - name: Elastic
+    ats: greenhouse
+    slug: elastic
+  - name: Grafana Labs
+    ats: greenhouse
+    slug: grafanalabs
+  - name: Sentry
+    ats: greenhouse
+    slug: sentry
+  - name: GitLab
+    ats: greenhouse
+    slug: gitlab
+  - name: Uber
+    ats: greenhouse
+    slug: uber
+  - name: Atlassian
+    ats: greenhouse
+    slug: atlassian
+  - name: Freshworks
+    ats: greenhouse
+    slug: freshworks
+  - name: BrowserStack
+    ats: greenhouse
+    slug: browserstack
+  - name: Postman
+    ats: greenhouse
+    slug: postman
+  - name: Chargebee
+    ats: greenhouse
+    slug: chargebee
+  - name: Rippling
+    ats: greenhouse
+    slug: rippling
+  - name: Notion
+    ats: ashby
+    slug: notion
+  - name: Figma
+    ats: greenhouse
+    slug: figma
+  - name: Anthropic
+    ats: greenhouse
+    slug: anthropic
+  - name: OpenAI
+    ats: greenhouse
+    slug: openai
+  - name: Coinbase
+    ats: greenhouse
+    slug: coinbase
+  - name: Plaid
+    ats: greenhouse
+    slug: plaid
+  - name: HashiCorp
+    ats: greenhouse
+    slug: hashicorp
+  - name: Snowflake
+    ats: greenhouse
+    slug: snowflake
+  - name: Palantir
+    ats: lever
+    slug: palantir

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Job copilot</title>
+  <link rel="stylesheet" href="/static/styles.css?v=7" />
+</head>
+<body>
+  <div id="overlay" class="overlay" hidden aria-hidden="true">
+    <div class="spinner" aria-hidden="true"></div>
+    <p id="overlayText">Working…</p>
+  </div>
+  <header class="top">
+    <div>
+      <p class="eyebrow" id="who">Abhijeet Kumar</p>
+      <h1>Job copilot</h1>
+      <p class="sub">Review packets. You apply on the original site.</p>
+    </div>
+    <div class="actions">
+      <button id="pasteOpen" type="button" class="secondary">Paste listing</button>
+      <button id="runBtn" type="button" class="run" title="Fetch watchlist jobs and score new ones">Fetch &amp; score</button>
+    </div>
+  </header>
+  <p id="banner" class="banner" hidden></p>
+  <section class="stats" id="stats"></section>
+  <section class="layout">
+    <aside>
+      <div class="aside-tools">
+        <label class="filter">
+          Search
+          <input id="search" type="search" placeholder="Company or title" autocomplete="off" />
+        </label>
+        <label class="filter">
+          Status
+          <select id="statusFilter">
+            <option value="queued">Queue</option>
+            <option value="ready">Approved</option>
+            <option value="applied">Applied</option>
+            <option value="snoozed">Snoozed</option>
+            <option value="skipped">Skipped</option>
+            <option value="new">Unscored</option>
+            <option value="">All</option>
+          </select>
+        </label>
+      </div>
+      <p class="hint">j / k move · a approve · x skip · c copy cover</p>
+      <ul id="jobList" class="job-list"></ul>
+    </aside>
+    <main id="detail" class="detail empty">Select a role to review.</main>
+  </section>
+  <div id="drawer" class="drawer" hidden>
+    <div class="drawer-panel">
+      <div class="drawer-head">
+        <h2>Paste a listing</h2>
+        <button id="pasteClose" type="button" class="secondary">Close</button>
+      </div>
+      <p class="muted">LinkedIn, Naukri, Indeed, Wellfound, or recruiter mail. First line = title. Optional <code>Company:</code> and <code>URL:</code>.</p>
+      <input id="pasteUrl" type="url" placeholder="https://… apply URL (optional)" />
+      <textarea id="pasteText" rows="12" placeholder="Senior Software Engineer&#10;Company: Example&#10;Bangalore&#10;&#10;Job description…"></textarea>
+      <button id="pasteBtn" type="button">Ingest and score</button>
+    </div>
+  </div>
+  <script src="/static/app.js?v=7"></script>
+</body>
+</html>
