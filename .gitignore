@@ -149,11 +149,14 @@ activemq-data/
 
 # Job copilot local data
 data/*.sqlite
-data/*.db
 data/*.sqlite3
+data/*-journal
+data/*-wal
+data/*-shm
 
-# Local copilot data
-data/
+# Allow seed database for deployment
+!data/
+!data/jobcopilot.db
 inbox/*.md
 !inbox/.gitkeep
 
@@ -226,3 +229,5 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+.vercel
+.env*

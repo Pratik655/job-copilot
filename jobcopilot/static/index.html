@@ -2,65 +2,815 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Job copilot</title>
-  <link rel="stylesheet" href="/static/styles.css?v=7" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover" />
+  <meta name="theme-color" content="#090d16" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Job Copilot — Autonomous Career &amp; Application Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css?v=37" />
 </head>
 <body>
-  <div id="overlay" class="overlay" hidden aria-hidden="true">
-    <div class="spinner" aria-hidden="true"></div>
-    <p id="overlayText">Working…</p>
-  </div>
-  <header class="top">
-    <div>
-      <p class="eyebrow" id="who">Abhijeet Kumar</p>
-      <h1>Job copilot</h1>
-      <p class="sub">Review packets. You apply on the original site.</p>
+  <!-- Loading & Scanning Overlay (Hidden by default) -->
+  <div id="overlay" class="overlay" hidden style="display: none !important;" aria-hidden="true">
+    <div class="scanner-box">
+      <div class="spinner-ring">
+        <div class="spinner-core"></div>
+      </div>
+      <p id="overlayText">Processing…</p>
+      <div id="scanStepList" class="scan-steps" hidden style="display: none;">
+        <div class="scan-step active" id="step1">
+          <span class="step-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg></span> Reading document structure &amp; layout…
+        </div>
+        <div class="scan-step" id="step2">
+          <span class="step-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg></span> Extracting degree, batch year &amp; university…
+        </div>
+        <div class="scan-step" id="step3">
+          <span class="step-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg></span> Identifying technical &amp; functional skills…
+        </div>
+        <div class="scan-step" id="step4">
+          <span class="step-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></span> Matching 580+ active roles across Indian tech hubs…
+        </div>
+      </div>
     </div>
-    <div class="actions">
-      <button id="pasteOpen" type="button" class="secondary">Paste listing</button>
-      <button id="runBtn" type="button" class="run" title="Fetch watchlist jobs and score new ones">Fetch &amp; score</button>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="banner" class="toast" hidden></div>
+
+  <!-- Main Top Navigation -->
+  <header class="top-nav">
+    <div class="nav-left">
+      <div class="brand-group">
+        <div class="logo">
+          <div class="logo-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+          </div>
+          <span class="logo-title">Job Copilot</span>
+        </div>
+        <div class="creator-badge" title="Architected and built by Pratik Kumar">
+          <span class="creator-text">Built by <strong>Pratik Kumar</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3-Step Navigation Stepper -->
+    <nav class="view-stepper">
+      <button type="button" class="step-btn active" data-view="preferences" id="navPref">
+        <span class="step-num">1</span>
+        <span class="step-label">Resume &amp; Profile</span>
+      </button>
+      <button type="button" class="step-btn" data-view="jobs" id="navJobs">
+        <span class="step-num">2</span>
+        <span class="step-label">Matched Jobs <span class="badge-count" id="navJobCount">0</span></span>
+      </button>
+      <button type="button" class="step-btn" data-view="packet" id="navPacket">
+        <span class="step-num">3</span>
+        <span class="step-label">Application Packet</span>
+      </button>
+    </nav>
+
+    <!-- Navigation Right Controls -->
+    <div class="nav-right">
+      <div class="autosync-pill" id="autoSyncWrap" title="Continuous background ATS scanner">
+        <span class="pulse-dot" id="syncDot"></span>
+        <span class="sync-label" id="syncStatusLabel">Auto-Sync: Off</span>
+        <button type="button" class="toggle-btn" id="toggleAutoSyncBtn">Enable</button>
+      </div>
+
+      <button id="runBtn" type="button" class="btn-accent" title="Fetch fresh openings from ATS boards and re-score">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+        </svg>
+        <span>Fetch &amp; Score</span>
+      </button>
+
+      <div class="dropdown-wrap">
+        <button id="moreBtn" type="button" class="btn-ghost btn-icon" title="More tools">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="5" r="2"></circle>
+            <circle cx="12" cy="12" r="2"></circle>
+            <circle cx="12" cy="19" r="2"></circle>
+          </svg>
+        </button>
+        <div id="moreMenu" class="dropdown-menu" hidden>
+          <button id="rescoreBtn" type="button" class="menu-item">
+            <span class="menu-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></span> Re-Score All Opportunities
+          </button>
+          <button id="exportCsvBtn" type="button" class="menu-item">
+            <span class="menu-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></span> Export Queue to CSV
+          </button>
+          <button id="exportAllBtn" type="button" class="menu-item">
+            <span class="menu-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg></span> Export All Roles (JSON)
+          </button>
+          <button id="resetResumeBtn" type="button" class="menu-item">
+            <span class="menu-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg></span> Reset / Upload New Resume
+          </button>
+          <button id="pasteOpen" type="button" class="menu-item" hidden>
+            <span class="menu-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></span> Paste Custom Job Description
+          </button>
+        </div>
+      </div>
     </div>
   </header>
-  <p id="banner" class="banner" hidden></p>
-  <section class="stats" id="stats"></section>
-  <section class="layout">
-    <aside>
-      <div class="aside-tools">
-        <label class="filter">
-          Search
-          <input id="search" type="search" placeholder="Company or title" autocomplete="off" />
-        </label>
-        <label class="filter">
-          Status
-          <select id="statusFilter">
-            <option value="queued">Queue</option>
-            <option value="ready">Approved</option>
-            <option value="applied">Applied</option>
-            <option value="snoozed">Snoozed</option>
-            <option value="skipped">Skipped</option>
-            <option value="new">Unscored</option>
-            <option value="">All</option>
-          </select>
-        </label>
+
+  <!-- ========================================================================= -->
+  <!-- PAGE 1: RESUME UPLOAD & TARGET PREFERENCES                                -->
+  <!-- ========================================================================= -->
+  <main id="viewPreferences" class="view-page active">
+    <div class="page-container">
+      <!-- Workspace Page Header -->
+      <div class="section-hero">
+        <h1 class="hero-title">Candidate Profile &amp; Preferences</h1>
+        <p class="hero-sub">Upload your resume to extract candidate details and score 580+ live tech roles.</p>
       </div>
-      <p class="hint">j / k move · a approve · x skip · c copy cover</p>
-      <ul id="jobList" class="job-list"></ul>
-    </aside>
-    <main id="detail" class="detail empty">Select a role to review.</main>
-  </section>
-  <div id="drawer" class="drawer" hidden>
-    <div class="drawer-panel">
-      <div class="drawer-head">
-        <h2>Paste a listing</h2>
-        <button id="pasteClose" type="button" class="secondary">Close</button>
+
+      <!-- Universal Resume Dropzone Card -->
+      <section class="card-section upload-hero-card">
+        <div class="upload-dropzone" id="dropzone">
+          <input type="file" id="resumeFileInput" accept=".pdf,.txt,.md" hidden />
+          <div class="dropzone-content">
+            <div class="dropzone-icon-wrap">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+            </div>
+            <div class="dropzone-title">
+              <strong>Drop your resume PDF here</strong>
+            </div>
+            <p class="dropzone-subtitle">or <button type="button" class="btn-browse-inline" id="browseFileBtn">browse local file</button></p>
+            <div class="dropzone-format-tags">
+              <span class="fmt-pill">PDF</span>
+              <span class="fmt-pill">DOCX</span>
+              <span class="fmt-pill">TXT</span>
+              <span class="fmt-pill">Max 10MB</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="paste-resume-toggle" hidden style="display:none;">
+          <button type="button" class="btn-link-subtle" id="togglePasteResumeBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px; vertical-align: middle;">
+              <path d="M12 20h9"></path>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+            <span>Or paste resume text directly</span>
+          </button>
+          <div id="pasteResumeArea" class="paste-area-wrap" hidden style="display:none;">
+            <textarea id="rawResumeText" rows="6" placeholder="Paste your raw resume text here…"></textarea>
+            <button type="button" class="btn-accent btn-sm" id="scanRawTextBtn">Scan Pasted Text</button>
+          </div>
+        </div>
+
+        <!-- Extracted Details Grid (Editable) -->
+        <div class="extracted-details-card" id="extractedCard">
+          <div class="extracted-header">
+            <div class="header-left">
+              <div class="card-pill-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>
+              <div>
+                <h3>Extracted Candidate Profile</h3>
+                <span class="card-sub-info">Auto-populated from resume scan. Click any field to edit.</span>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span class="tag-status tag-status-awaiting" id="scanStatusTag">Awaiting Resume</span>
+              <button type="button" class="btn-ghost btn-xs" id="clearProfileBtn" title="Reset profile and clear fields" style="font-size: 11px; padding: 0.2rem 0.55rem; color: var(--text-dim);">Reset</button>
+            </div>
+          </div>
+
+          <div class="form-grid-3">
+            <div class="field">
+              <label for="profName">Full Name</label>
+              <input id="profName" type="text" placeholder="Full Name" spellcheck="false" />
+            </div>
+            <div class="field">
+              <label for="profDegree">Degree / Major</label>
+              <input id="profDegree" type="text" placeholder="Degree / Major" />
+            </div>
+            <div class="field">
+              <label for="profYear">Graduating Year</label>
+              <input id="profYear" type="number" placeholder="Graduating Year" />
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="field">
+              <label for="profUniversity">University / Institution</label>
+              <input id="profUniversity" type="text" placeholder="University / Institution" />
+            </div>
+            <div class="field">
+              <label for="profCurrentLoc">Current Base Location</label>
+              <input id="profCurrentLoc" type="text" placeholder="Current Location" />
+            </div>
+          </div>
+
+          <div class="field skills-section-field">
+            <div class="field-label-row">
+              <label>Skills &amp; Tech Stack</label>
+              <span class="field-hint">Matched against employer keywords</span>
+            </div>
+            <div class="tag-chips-wrap" id="skillsChips"></div>
+            <div class="add-chip-row">
+              <div class="add-chip-input-wrap">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <input id="newSkillInput" type="text" placeholder="Add custom skill…" />
+              </div>
+              <button type="button" class="btn-secondary btn-sm" id="addSkillBtn">+ Add Skill</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Target Cities Card -->
+      <section class="card-section">
+        <div class="card-header-clean">
+          <div class="header-left">
+            <div class="card-pill-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div>
+            <div>
+              <h2>Target Cities &amp; Locations</h2>
+              <p>Select all Indian tech hubs and cities you are willing to work in or relocate to.</p>
+            </div>
+          </div>
+          <div class="quick-checks">
+            <button type="button" class="btn-ghost btn-xs" id="selectAllCitiesBtn">Select All</button>
+            <button type="button" class="btn-ghost btn-xs" id="selectTopCitiesBtn">Top Hubs (Bangalore, Hyd, Pune, NCR, Remote)</button>
+            <button type="button" class="btn-ghost btn-xs" id="clearCitiesBtn">Clear</button>
+          </div>
+        </div>
+
+        <div class="checkbox-pills-grid" id="cityPillsGrid">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+        <div class="manual-add-bar">
+          <label for="customCityInput">Add custom city:</label>
+          <div class="input-action-group">
+            <input id="customCityInput" type="text" placeholder="Add city name…" />
+            <button type="button" class="btn-secondary btn-sm" id="addCustomCityBtn">+ Add Location</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Career Fields & Domains Card -->
+      <section class="card-section">
+        <div class="card-header-clean">
+          <div class="header-left">
+            <div class="card-pill-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></div>
+            <div>
+              <h2>Target Career Domains</h2>
+              <p>Choose domains you are interested in. The engine categorizes and scores roles matching your selection.</p>
+            </div>
+          </div>
+          <div class="quick-checks">
+            <button type="button" class="btn-ghost btn-xs" id="selectAllDomainsBtn">Select All Fields</button>
+            <button type="button" class="btn-ghost btn-xs" id="clearDomainsBtn">Clear</button>
+          </div>
+        </div>
+
+        <div class="domain-cards-grid" id="domainCardsGrid">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+        <div class="manual-add-bar">
+          <label for="customDomainInput">Add custom domain / job title:</label>
+          <div class="input-action-group">
+            <input id="customDomainInput" type="text" placeholder="Add domain or title…" />
+            <button type="button" class="btn-secondary btn-sm" id="addCustomDomainBtn">+ Add Field</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Save & Proceed Action (Hidden - Auto-saved on resume scan) -->
+      <button type="button" id="saveAndContinueBtn" hidden style="display: none !important;"></button>
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- PAGE 2: LIVE JOB FEED & SPLIT PREVIEW                                     -->
+  <!-- ========================================================================= -->
+  <main id="viewJobs" class="view-page">
+    <div class="page-container wide">
+      <!-- Automation & Filter Control Bar -->
+      <section class="controls-bar-v2">
+        <div class="controls-row-top">
+          <div class="status-tabs" id="statusTabs">
+            <button type="button" class="tab-pill active" data-status="queued">
+              Queue <span id="countQueued" class="pill-count">0</span>
+            </button>
+            <button type="button" class="tab-pill" data-status="ready">
+              Approved <span id="countReady" class="pill-count">0</span>
+            </button>
+            <button type="button" class="tab-pill" data-status="applied">
+              Applied <span id="countApplied" class="pill-count">0</span>
+            </button>
+            <button type="button" class="tab-pill" data-status="skipped">
+              Skipped <span id="countSkipped" class="pill-count">0</span>
+            </button>
+            <button type="button" class="tab-pill" data-status="">
+              All Roles <span id="countTotal" class="pill-count">0</span>
+            </button>
+          </div>
+
+          <div class="controls-actions">
+            <button type="button" class="btn-secondary btn-sm" id="fetchSyncBtn" title="Fetch fresh openings from Greenhouse, Lever, Ashby">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+              </svg>
+              <span>Sync ATS Boards</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="filter-inputs-v2">
+          <div class="search-wrap">
+            <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input id="search" type="search" placeholder="Search roles, companies, tech stack, or locations…" autocomplete="off" />
+          </div>
+          <div class="select-group">
+            <select id="domainFilter" class="select-clean" title="Filter by field">
+              <option value="">All Career Fields</option>
+              <option value="tech">Tech &amp; Software</option>
+              <option value="data">Data &amp; Analytics</option>
+              <option value="marketing">Marketing &amp; Growth</option>
+              <option value="sales_bd">Sales &amp; Business Dev</option>
+              <option value="product_ops">Product &amp; Operations</option>
+              <option value="trainee_campus">Graduate &amp; Trainee</option>
+              <option value="consulting_biz">Business &amp; Consulting</option>
+              <option value="hr_talent">HR &amp; People</option>
+            </select>
+            <select id="cityFilter" class="select-clean" title="Filter by city">
+              <option value="">All Locations</option>
+            </select>
+          </div>
+          <label class="checkbox-toggle-label">
+            <input type="checkbox" id="onlySelectedCitiesToggle" />
+            <span class="toggle-slider"></span>
+            <span class="toggle-text">Only My Selected Cities</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Mobile View Switcher (Visible on mobile <= 900px) -->
+      <div class="mobile-feed-toggle" id="mobileFeedToggle">
+        <button type="button" class="m-toggle-btn active" id="mToggleListBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+          <span>Job Roles</span>
+        </button>
+        <button type="button" class="m-toggle-btn" id="mToggleDetailBtn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <span id="mDetailTabLabel">Role Details</span>
+        </button>
       </div>
-      <p class="muted">LinkedIn, Naukri, Indeed, Wellfound, or recruiter mail. First line = title. Optional <code>Company:</code> and <code>URL:</code>.</p>
-      <input id="pasteUrl" type="url" placeholder="https://… apply URL (optional)" />
-      <textarea id="pasteText" rows="12" placeholder="Senior Software Engineer&#10;Company: Example&#10;Bangalore&#10;&#10;Job description…"></textarea>
-      <button id="pasteBtn" type="button">Ingest and score</button>
+
+      <!-- 2-Pane Split Feed & Live Preview -->
+      <div class="feed-layout">
+        <!-- Left Job Cards List -->
+        <div class="jobs-list-pane">
+          <div class="pane-header">
+            <span id="jobsCountLabel" class="feed-count">Loading roles…</span>
+            <span class="feed-shortcuts">
+              <kbd>j</kbd>/<kbd>k</kbd> navigate · <kbd>Enter</kbd> packet
+            </span>
+          </div>
+          <ul id="jobList" class="clean-job-list"></ul>
+        </div>
+
+        <!-- Right Quick Preview Pane -->
+        <div class="job-preview-pane" id="quickPreviewPane">
+          <div class="empty-state" id="emptyPreview">
+            <div class="empty-icon-wrap">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+            </div>
+            <h2>Select a job to inspect</h2>
+            <p>Click any opportunity on the left to view instant fit analysis, skill overlap, and access the application materials.</p>
+          </div>
+          <div id="previewContent" hidden>
+            <!-- Injected via JavaScript -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- PAGE 3: APPLICATION COPILOT & PACKET REVIEW                              -->
+  <!-- ========================================================================= -->
+  <main id="viewPacket" class="view-page">
+    <div class="page-container">
+      <!-- Back Navigation Header -->
+      <div class="packet-top-bar">
+        <button type="button" class="btn-ghost btn-sm" id="backToJobsBtn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          <span>Back to Job Feed</span>
+        </button>
+        <span class="packet-step-badge">
+          Step 3 · Tailored Application Materials
+        </span>
+      </div>
+
+      <!-- Active Job Full Banner -->
+      <div id="packetJobHeader" class="packet-header-card">
+        <div class="packet-header-content">
+          <div class="packet-title-row">
+            <h1 id="packetTitle">Select a job from Feed</h1>
+            <span id="packetScoreBadge" class="score-pill-lg">–</span>
+          </div>
+          <div class="packet-subtitle">
+            <span class="sub-badge-company" id="packetCompany">–</span>
+            <span class="sub-sep">·</span>
+            <span class="sub-info" id="packetCity">–</span>
+            <span class="sub-sep">·</span>
+            <span class="sub-info" id="packetDomain">–</span>
+            <span class="sub-sep">·</span>
+            <span class="sub-info" id="packetExp">–</span>
+          </div>
+        </div>
+
+        <div class="packet-actions-bar">
+          <button type="button" class="btn-accent" id="btnPacketApply">
+            <span>Apply on Official Portal</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+          </button>
+          <button type="button" class="btn-secondary" id="btnPacketGenerateAi" title="Generate tailored cover letter, resume highlights, and cold outreach using AI API"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg> AI Generate</button>
+          <button type="button" class="btn-secondary" id="btnPacketApprove"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Approve Role</button>
+          <button type="button" class="btn-secondary" id="btnPacketMarkApplied"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Mark as Applied</button>
+          <button type="button" class="btn-ghost" id="btnPacketSkip">Skip</button>
+        </div>
+      </div>
+
+      <!-- Fit Breakdown Indicators -->
+      <div class="fit-breakdown-card" id="packetFitBreakdown">
+        <div class="breakdown-header">
+          <h3>Match Breakdown &amp; Analysis</h3>
+          <span class="breakdown-tag">Weighted Match Analysis</span>
+        </div>
+        <div class="fit-pills-row" id="fitPillsRow"></div>
+        <div class="matched-skills-section">
+          <span class="matched-skills-title">Matched Skills in Listing:</span>
+          <div class="matched-skills-row" id="matchedSkillsRow"></div>
+        </div>
+      </div>
+
+      <!-- Tabbed Application Packet Material -->
+      <section class="packet-tabs-section">
+        <div class="packet-tab-nav" id="packetTabs">
+          <button type="button" class="pkt-tab-btn active" data-tab="cover">
+            <span class="tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg></span> Tailored Cover Letter
+          </button>
+          <button type="button" class="pkt-tab-btn" data-tab="bullets">
+            <span class="tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></span> Resume Highlights
+          </button>
+          <button type="button" class="pkt-tab-btn" data-tab="referral">
+            <span class="tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></span> Referral &amp; Cold Outreach
+          </button>
+          <button type="button" class="pkt-tab-btn" data-tab="qa">
+            <span class="tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></span> Screening Q&amp;A
+          </button>
+          <button type="button" class="pkt-tab-btn" data-tab="jd">
+            <span class="tab-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg></span> Job Description
+          </button>
+        </div>
+
+        <div class="packet-tab-body">
+          <!-- Cover Letter Tab -->
+          <div class="pkt-tab-panel active" id="tabCover">
+            <div class="cl-toolbar-wrapper">
+              <div class="cl-view-modes">
+                <button type="button" class="cl-mode-pill active" id="clModeFormattedBtn" title="Standard Formatted Executive Letter">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                  <span>Executive Letter View</span>
+                </button>
+                <button type="button" class="cl-mode-pill" id="clModeRawBtn" title="Edit Raw Text">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                  <span>Edit Plain Text</span>
+                </button>
+              </div>
+
+              <div class="cl-actions-group">
+                <div class="cl-tone-wrap">
+                  <label for="clToneSelector" class="cl-tone-label">Tone:</label>
+                  <select id="clToneSelector" class="select-clean cl-tone-select">
+                    <option value="standard">Standard Formal</option>
+                    <option value="tech">Tech &amp; Engineering</option>
+                    <option value="enthusiastic">High Energy / Culture</option>
+                    <option value="concise">Concise &amp; Direct</option>
+                  </select>
+                </div>
+
+                <button type="button" class="btn-ghost btn-sm" id="printCoverBtn" title="Print or save as professional PDF">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                    <rect x="6" y="14" width="12" height="8"></rect>
+                  </svg>
+                  <span>Print / PDF</span>
+                </button>
+
+                <button type="button" class="btn-accent btn-sm" id="copyCoverBtn">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span>Copy Letter</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Formatted Executive Letterhead View -->
+            <div id="clFormattedDoc" class="cl-document-card">
+              <div class="cl-doc-paper">
+                <!-- Letterhead -->
+                <header class="cl-doc-letterhead">
+                  <div class="cl-sender-info">
+                    <h2 class="cl-sender-name" id="clDocSenderName">CANDIDATE NAME</h2>
+                    <p class="cl-sender-title" id="clDocSenderTitle">Engineering &amp; Technology · Class of 2026</p>
+                    <div class="cl-sender-contacts" id="clDocSenderContacts">
+                      <span class="cl-contact-item" id="clDocEmail"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg> <span id="clDocEmailText">candidate@email.com</span></span>
+                      <span class="cl-contact-sep">·</span>
+                      <span class="cl-contact-item" id="clDocPhone"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg> <span id="clDocPhoneText">+91 XXXXX XXXXX</span></span>
+                      <span class="cl-contact-sep">·</span>
+                      <span class="cl-contact-item" id="clDocLocation"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> <span id="clDocLocationText">India / Remote</span></span>
+                      <span class="cl-contact-sep">·</span>
+                      <a class="cl-contact-item cl-contact-link" id="clDocGithub" href="#" target="_blank" rel="noopener"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"></path></svg> <span>GitHub Profile</span></a>
+                      <span class="cl-contact-sep">·</span>
+                      <a class="cl-contact-item cl-contact-link" id="clDocLinkedin" href="#" target="_blank" rel="noopener"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg> <span>LinkedIn Profile</span></a>
+                    </div>
+                  </div>
+                  <div class="cl-doc-accent-bar"></div>
+                </header>
+
+                <!-- Letter Metadata & Recipient -->
+                <section class="cl-doc-meta-row">
+                  <div class="cl-date-block">
+                    <span class="cl-meta-label">Date</span>
+                    <span class="cl-date-val" id="clDocDate">October 15, 2026</span>
+                  </div>
+                  <div class="cl-recipient-block">
+                    <span class="cl-meta-label">To</span>
+                    <div class="cl-recipient-val" id="clDocRecipient">
+                      <strong>Hiring Team &amp; Talent Acquisition</strong>
+                      <span id="clDocRecipientCompany">Target Company</span>
+                      <span id="clDocRecipientLocation">Location / Remote</span>
+                    </div>
+                  </div>
+                </section>
+
+                <!-- Subject Line Banner -->
+                <div class="cl-subject-banner" id="clDocSubjectBanner">
+                  <span class="cl-subject-tag">SUBJECT</span>
+                  <span class="cl-subject-text" id="clDocSubjectText">Application for Software Engineering Role</span>
+                </div>
+
+                <!-- Salutation & Body Content -->
+                <div class="cl-salutation" id="clDocSalutation">Dear Hiring Team,</div>
+                <div class="cl-body-content" id="clDocBodyContent">
+                  <!-- Dynamically rendered structured paragraphs -->
+                </div>
+
+                <!-- Sign-off & Signature -->
+                <footer class="cl-doc-signoff">
+                  <div class="cl-valediction">Sincerely,</div>
+                  <div class="cl-signature-script" id="clDocSignatureScript">Candidate Name</div>
+                  <div class="cl-sign-name" id="clDocSignName">Candidate Name</div>
+                  <div class="cl-sign-sub" id="clDocSignSub">Candidate for Employment · Enclosures: Curriculum Vitae, Academic Portfolio</div>
+                </footer>
+              </div>
+            </div>
+
+            <!-- Raw Textarea Container (Editable) -->
+            <div id="clRawEditorWrap" class="cl-editor-wrap" hidden style="display: none;">
+              <div class="cl-editor-hint">
+                <span>Any edits made here are instantly reflected in the Executive Letterhead View.</span>
+                <span id="clWordCount" class="cl-word-count">0 words</span>
+              </div>
+              <textarea id="coverLetterText" class="packet-textarea" rows="14" spellcheck="false"></textarea>
+            </div>
+          </div>
+
+          <!-- Resume Bullets Tab -->
+          <div class="pkt-tab-panel" id="tabBullets">
+            <div class="tab-panel-toolbar">
+              <span class="tool-info">Targeted resume accomplishments aligned with this job specification</span>
+              <button type="button" class="btn-accent btn-sm" id="copyBulletsBtn">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span>Copy Highlights</span>
+              </button>
+            </div>
+            <div id="resumeBulletsList" class="bullets-card-list"></div>
+          </div>
+
+          <!-- Referral Message Tab -->
+          <div class="pkt-tab-panel" id="tabReferral">
+            <div class="tab-panel-toolbar">
+              <span class="tool-info">High-converting cold message for LinkedIn or Twitter outreach</span>
+              <button type="button" class="btn-accent btn-sm" id="copyReferralBtn">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span>Copy Outreach Note</span>
+              </button>
+            </div>
+            <textarea id="referralText" class="packet-textarea" rows="7" spellcheck="false"></textarea>
+          </div>
+
+          <!-- Screening Q&A Tab -->
+          <div class="pkt-tab-panel" id="tabQa">
+            <div class="tab-panel-toolbar">
+              <span class="tool-info">Suggested answers for common ATS application screening questions</span>
+            </div>
+            <div id="screeningQaList" class="qa-card-list"></div>
+          </div>
+
+          <!-- Job Description Tab -->
+          <div class="pkt-tab-panel" id="tabJd">
+            <div class="tab-panel-toolbar">
+              <span class="tool-info">Original job description text</span>
+              <a id="originalLinkAnchor" href="#" target="_blank" rel="noopener" class="btn-ghost btn-sm">
+                <span>Open Listing Link</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+              </a>
+            </div>
+            <div id="fullJdContent" class="jd-body-clean"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Applications History & Tracking Section -->
+      <section class="card-section mt-lg">
+        <div class="card-header-clean">
+          <div class="header-left">
+            <div class="card-pill-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"></line>
+                <line x1="12" y1="20" x2="12" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="14"></line>
+              </svg>
+            </div>
+            <div>
+              <h2>Applied Jobs Tracker</h2>
+              <p>Keep track of all submitted roles, dates, and application links.</p>
+            </div>
+          </div>
+          <div>
+            <button type="button" class="btn-secondary btn-sm" id="exportHistoryCsvBtn">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Export Tracking CSV</span>
+            </button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="clean-table" id="appliedTable">
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Role Title</th>
+                <th>Applied On</th>
+                <th>Listing Link</th>
+              </tr>
+            </thead>
+            <tbody id="appliedTableBody">
+              <tr><td colspan="4" class="text-center text-dim">No applied roles recorded yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Universal Modern Footer with Creator Attribution -->
+  <footer class="app-footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <div class="footer-logo">
+          <span class="footer-dot"></span>
+          <span class="footer-title">Job Copilot</span>
+        </div>
+        <p class="footer-desc">Autonomous career matching and application engine for tech opportunities.</p>
+      </div>
+
+      <div class="footer-center">
+        <div class="creator-stamp">
+          <span>Engineered &amp; Built by <strong>Pratik Kumar</strong></span>
+        </div>
+      </div>
+
+      <div class="footer-right">
+        <span class="footer-tag">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          580+ Live Roles
+        </span>
+        <span class="footer-tag">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; margin-right: 4px;">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          Production Ready
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: PASTE ROLE (OPTIONAL)                                            -->
+  <!-- ========================================================================= -->
+  <div id="pasteModal" class="modal-backdrop" hidden style="display: none !important;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Paste a Job Listing</h3>
+        <button id="pasteCloseBtn" type="button" class="close-btn" aria-label="Close">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <p class="modal-desc">Paste listings from LinkedIn, Naukri, Indeed, or email. The engine parses company, title, domain, city, and prepares your packet.</p>
+      
+      <div class="field">
+        <label for="pasteUrl">Apply Link (optional):</label>
+        <input id="pasteUrl" type="url" placeholder="https://…" />
+      </div>
+
+      <div class="field">
+        <label for="pasteText">Job Description:</label>
+        <textarea id="pasteText" rows="10" placeholder="Paste full JD here…"></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button id="pasteCancelBtn" type="button" class="btn-ghost">Cancel</button>
+        <button id="pasteSubmitBtn" type="button" class="btn-accent">Ingest &amp; Score</button>
+      </div>
     </div>
   </div>
-  <script src="/static/app.js?v=7"></script>
+
+  <!-- Android Mobile Bottom Navigation Bar (Material 3 Thumb Zone) -->
+  <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobile Bottom Navigation">
+    <button type="button" class="mobile-nav-item active" data-view="preferences" id="mobileNavPref" aria-label="Candidate Profile">
+      <div class="nav-icon-wrap">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+      </div>
+      <span class="nav-text">Profile</span>
+    </button>
+    <button type="button" class="mobile-nav-item" data-view="jobs" id="mobileNavJobs" aria-label="Matched Jobs Feed">
+      <div class="nav-icon-wrap">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+        </svg>
+        <span class="mobile-badge" id="mobileNavJobCount">0</span>
+      </div>
+      <span class="nav-text">Jobs Feed</span>
+    </button>
+    <button type="button" class="mobile-nav-item" data-view="packet" id="mobileNavPacket" aria-label="Application Packet & Copilot">
+      <div class="nav-icon-wrap">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+        </svg>
+      </div>
+      <span class="nav-text">Copilot</span>
+    </button>
+  </nav>
+
+  <script src="/static/app.js?v=37"></script>
 </body>
 </html>

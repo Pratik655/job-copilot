@@ -11,16 +11,20 @@ from urllib.parse import urlparse
 import httpx
 import yaml
 
-from jobcopilot import (
-    BANGALORE_HINTS,
-    INBOX_DIR,
-    TITLE_HINTS,
-    WATCHLIST_PATH,
+from jobcopilot.filters import (
+    CITY_PATTERNS,
+    detect_domain,
+    detect_experience_level,
+    is_location_relevant,
+    is_senior_or_experienced,
+    is_software_title,
+    normalize_city,
 )
+from jobcopilot.paths import INBOX_DIR, WATCHLIST_PATH
 from jobcopilot.db import connect, init_db, upsert_job, was_applied
 
-USER_AGENT = "job-copilot/0.1 (personal job search; +https://github.com/abhijeetkr0202/job-copilot)"
-PER_COMPANY_CAP = 20
+USER_AGENT = "job-copilot/0.2 (personal job search; +https://github.com/abhijeetkr0202/job-copilot)"
+PER_COMPANY_CAP = 30
 
 ENDPOINTS = {
     "greenhouse": "https://boards-api.greenhouse.io/v1/boards/{slug}/jobs?content=true",
@@ -30,7 +34,7 @@ ENDPOINTS = {
 
 
 def html_to_text(value: str | None) -> str:
-    """Turn ATS HTML (often entity-escaped) into readable plain text."""
+    """Turn ATS HTML into clean readable plain text."""
     if not value:
         return ""
     text = str(value)
@@ -63,30 +67,23 @@ def backfill_plain_descriptions() -> int:
             if cleaned != (row["description"] or ""):
                 conn.execute("UPDATE jobs SET description = ? WHERE id = ?", (cleaned, row["id"]))
                 updated += 1
+        conn.commit()
     return updated
 
 
-def _matches_title(title: str) -> bool:
-    lowered = title.lower()
-    if re.search(r"\bintern(ship)?\b", lowered) and "internal" not in lowered:
-        return False
-    return any(hint in lowered for hint in TITLE_HINTS)
+def _matches_title(title: str, description: str = "") -> bool:
+    return is_software_title(title) and not is_senior_or_experienced(title, description)
 
 
 def _matches_location(location: str | None, description: str = "") -> bool:
-    loc = (location or "").lower()
-    if any(hint in loc for hint in BANGALORE_HINTS):
-        return True
-    if "india" in loc and "indiana" not in loc:
-        return True
-    blob = f"{loc} {description or ''}".lower()
-    if "remote" in loc and ("india" in blob or any(hint in blob for hint in BANGALORE_HINTS)):
-        return True
-    return False
+    return is_location_relevant(location, description)
 
 
 def load_watchlist(path: Path | None = None) -> list[dict[str, str]]:
-    data = yaml.safe_load((path or WATCHLIST_PATH).read_text()) or {}
+    p = path or WATCHLIST_PATH
+    if not p.exists():
+        p = p.parent / "config" / "watchlist.yaml"
+    data = yaml.safe_load(p.read_text(encoding="utf-8")) or {}
     return list(data.get("companies") or [])
 
 
@@ -95,7 +92,10 @@ def fetch_company(client: httpx.Client, company: dict[str, str]) -> list[dict[st
     slug = company["slug"]
     name = company["name"]
     url = ENDPOINTS[ats].format(slug=slug)
-    response = client.get(url, timeout=20.0)
+    try:
+        response = client.get(url, timeout=15.0)
+    except Exception:
+        return []
     if response.status_code != 200:
         return []
     payload = response.json()
@@ -103,6 +103,7 @@ def fetch_company(client: httpx.Client, company: dict[str, str]) -> list[dict[st
     if ats == "greenhouse":
         for item in payload.get("jobs") or []:
             loc = ((item.get("location") or {}).get("name")) or ""
+            desc = _strip_html(item.get("content"))
             jobs.append(
                 {
                     "source": "ats",
@@ -111,14 +112,17 @@ def fetch_company(client: httpx.Client, company: dict[str, str]) -> list[dict[st
                     "company": name,
                     "title": item.get("title") or "",
                     "location": loc,
+                    "city": normalize_city(loc, desc),
                     "url": item.get("absolute_url"),
-                    "description": _strip_html(item.get("content")),
+                    "description": desc,
                     "posted_at": item.get("first_published") or item.get("updated_at"),
                 }
             )
     elif ats == "lever":
         for item in payload or []:
             cats = item.get("categories") or {}
+            loc = cats.get("location") or ""
+            desc = _strip_html(item.get("descriptionPlain") or item.get("description"))
             jobs.append(
                 {
                     "source": "ats",
@@ -126,9 +130,10 @@ def fetch_company(client: httpx.Client, company: dict[str, str]) -> list[dict[st
                     "external_id": str(item.get("id")),
                     "company": name,
                     "title": item.get("text") or "",
-                    "location": cats.get("location") or "",
+                    "location": loc,
+                    "city": normalize_city(loc, desc),
                     "url": item.get("hostedUrl") or item.get("applyUrl"),
-                    "description": _strip_html(item.get("descriptionPlain") or item.get("description")),
+                    "description": desc,
                     "posted_at": (
                         datetime.fromtimestamp(item["createdAt"] / 1000, tz=timezone.utc).isoformat()
                         if item.get("createdAt")
@@ -144,6 +149,7 @@ def fetch_company(client: httpx.Client, company: dict[str, str]) -> list[dict[st
             loc = item.get("location") or ""
             if isinstance(loc, dict):
                 loc = loc.get("name") or ""
+            desc = _strip_html(item.get("descriptionHtml") or item.get("descriptionPlain"))
             jobs.append(
                 {
                     "source": "ats",
@@ -152,21 +158,32 @@ def fetch_company(client: httpx.Client, company: dict[str, str]) -> list[dict[st
                     "company": name,
                     "title": item.get("title") or "",
                     "location": loc,
+                    "city": normalize_city(loc, desc),
                     "url": item.get("jobUrl") or item.get("applyUrl"),
-                    "description": _strip_html(item.get("descriptionHtml") or item.get("descriptionPlain")),
+                    "description": desc,
                     "posted_at": item.get("publishedAt"),
                 }
             )
+
     matched = [
         j
         for j in jobs
-        if _matches_title(j["title"]) and _matches_location(j["location"], j.get("description") or "")
+        if _matches_title(j["title"], j.get("description") or "") and _matches_location(j["location"], j.get("description") or "")
     ]
-    bangalore_first = sorted(
-        matched,
-        key=lambda j: (0 if any(h in (j["location"] or "").lower() for h in BANGALORE_HINTS) else 1, j["title"]),
-    )
-    return bangalore_first[:PER_COMPANY_CAP]
+
+    # Prioritize Bangalore, Remote India, and top tech hubs
+    def sort_key(j: dict[str, Any]) -> tuple[int, str]:
+        c = (j.get("city") or "").lower()
+        if "bangalore" in c or "bengaluru" in c:
+            return 0, j["title"]
+        if "remote" in c:
+            return 1, j["title"]
+        if any(h in c for h in ("hyderabad", "pune", "delhi", "gurgaon", "noida")):
+            return 2, j["title"]
+        return 3, j["title"]
+
+    sorted_jobs = sorted(matched, key=sort_key)
+    return sorted_jobs[:PER_COMPANY_CAP]
 
 
 def ingest_watchlist() -> dict[str, int]:
@@ -176,13 +193,21 @@ def ingest_watchlist() -> dict[str, int]:
     already_applied = 0
     failed = 0
     companies = load_watchlist()
-    with httpx.Client(headers={"User-Agent": USER_AGENT}, follow_redirects=True) as client:
-        fetched: list[dict[str, Any]] = []
+
+    # Create client safely across httpx versions
+    try:
+        client = httpx.Client(headers={"User-Agent": USER_AGENT}, follow_redirects=True)
+    except TypeError:
+        client = httpx.Client(headers={"User-Agent": USER_AGENT})
+
+    fetched: list[dict[str, Any]] = []
+    with client:
         for company in companies:
             try:
                 fetched.extend(fetch_company(client, company))
             except Exception:
                 failed += 1
+
     with connect() as conn:
         for job in fetched:
             applied = was_applied(conn, job)
@@ -193,6 +218,8 @@ def ingest_watchlist() -> dict[str, int]:
                 inserted += 1
             else:
                 updated += 1
+        conn.commit()
+
     return {
         "inserted": inserted,
         "updated": updated,
@@ -224,9 +251,13 @@ def parse_paste(raw: str, url: str | None = None) -> dict[str, Any]:
             continue
         if lowered.startswith("http"):
             continue
-        if any(h in lowered for h in BANGALORE_HINTS + ("remote", "hybrid", "india")):
-            location = line
+        for p_list in CITY_PATTERNS.values():
+            if any(p in lowered for p in p_list):
+                location = line
+                break
+        if location:
             break
+
     digest = hashlib.sha256(text.encode()).hexdigest()[:16]
     provider = "paste"
     if extracted_url:
@@ -239,13 +270,16 @@ def parse_paste(raw: str, url: str | None = None) -> dict[str, Any]:
             provider = "indeed"
         elif "wellfound" in host or "angel.co" in host:
             provider = "wellfound"
+
+    city = normalize_city(location or "Bangalore", text)
     return {
         "source": "paste",
         "provider": provider,
         "external_id": digest,
         "company": company,
         "title": title[:180],
-        "location": location or "Bangalore",
+        "location": location or city,
+        "city": city,
         "url": extracted_url,
         "description": text,
         "posted_at": None,
@@ -258,11 +292,12 @@ def ingest_paste(raw: str, url: str | None = None) -> dict[str, Any]:
     with connect() as conn:
         applied = was_applied(conn, job)
         job_id, is_new = upsert_job(conn, job)
+        conn.commit()
     return {
         "id": job_id,
         "created": is_new,
         "already_applied": applied,
-        **{k: job[k] for k in ("title", "company", "provider")},
+        **{k: job[k] for k in ("title", "company", "provider", "city")},
     }
 
 
@@ -273,7 +308,7 @@ def ingest_inbox() -> dict[str, int]:
     for path in sorted(INBOX_DIR.glob("*")):
         if path.name.startswith(".") or path.suffix.lower() not in {".md", ".txt"}:
             continue
-        text = path.read_text()
+        text = path.read_text(encoding="utf-8")
         url = None
         for line in text.splitlines():
             if line.lower().startswith("url:"):

@@ -1,0 +1,18 @@
+.venv
+venv
+env
+.git
+.pytest_cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+tests
+New folder
+samples
+*.bat
+*.ps1
+Makefile
+.coverage
+htmlcov
+.tox

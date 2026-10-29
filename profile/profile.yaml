@@ -1,42 +1,127 @@
-name: Abhijeet
-target_location: Bangalore
-open_to:
-  - Bangalore
-  - Bengaluru
-  - Hybrid Bangalore
-  - Remote India
-target_titles:
-  - Software Engineer
-  - Senior Software Engineer
-  - Backend Engineer
-  - Full Stack Engineer
-  - Platform Engineer
-  - SDE-2
-  - SDE-3
-years_experience: 5
-stack:
-  - Python
-  - Go
-  - TypeScript
-  - JavaScript
-  - React
-  - Node.js
-  - PostgreSQL
-  - Redis
-  - AWS
-  - Docker
-  - Kubernetes
-must_have: []
-nice_to_have:
-  - distributed systems
-  - APIs
-  - observability
+ctc_expectation: Open to discuss for entry-level / fresher roles
+current_location: ''
 deal_breakers:
-  - unpaid trial projects
-  - crypto-only startups with no product
-notice_period: Immediate / 30 days
-current_location: Bangalore
-ctc_expectation: Open to discuss for the right role
+- unpaid trial projects
+- crypto-only startups with no product
+- unpaid internships
+- senior or staff roles requiring 3+ years experience
+degree: ''
+graduating_year: 2026
+max_experience_allowed: 2
+must_have: []
+name: ''
+nice_to_have:
+- full-stack development
+- backend development
+- data analysis
+- market research
+- digital marketing
+- problem solving
+- business communication
+notes: Open to all early-career and graduate entry paths including Software Engineering
+  (SDE-1), Data Analytics, Product, Digital Marketing, Growth, Business Development,
+  Operations, and Management Trainee across major Indian cities and Remote India.
+notice_period: Immediate
+open_to:
+- Bangalore
+- Hyderabad
+- Pune
+- Delhi-NCR
+- Mumbai
+- Chennai
+- Kolkata
+- Ahmedabad
+- Remote India
+- Chandigarh
+- Mohali
+- Kochi
+- Trivandrum
+- Coimbatore
+- Jaipur
+- Indore
+- Bhubaneswar
+- Bengaluru
+- Hybrid Bangalore
+- Gurgaon
+- Gurugram
+- Noida
+- Navi Mumbai
+salary_band: ''
+stack:
+- Docker
+- Fastapi
+- GIT
+- Machine Learning
+- Python
+- React
+- SQL
+target_domains:
+- tech
+- data
+- trainee_campus
+target_location: ''
+target_titles:
+- Software Engineer
+- Software Developer
+- Graduate Software Engineer
+- Associate Software Engineer
+- Junior Software Engineer
+- SDE-1
+- SDE-I
+- SDE 1
+- Full Stack Engineer
+- Full Stack Developer
+- Web Developer
+- Frontend Engineer
+- Backend Engineer
+- Node.js Developer
+- Python Developer
+- Member of Technical Staff
+- Application Engineer
+- Systems Engineer
+- SDET
+- QA Engineer
+- DevOps Engineer
+- Associate Cloud Engineer
+- Data Analyst
+- Junior Data Analyst
+- Business Intelligence Analyst
+- Associate Data Engineer
+- Machine Learning Engineer
+- Data Science Intern
+- Business Analyst
+- Analytics Associate
+- Marketing Associate
+- Digital Marketing Associate
+- Growth Associate
+- Growth Analyst
+- Marketing Executive
+- Content Marketing Associate
+- SEO Analyst
+- Social Media Associate
+- Brand Associate
+- Product Marketing Associate
+- Business Development Associate
+- BDA
+- Business Development Executive
+- BDE
+- Inside Sales Associate
+- Account Associate
+- Customer Success Associate
+- Client Relationship Associate
+- Solutions Consultant
+- Associate Product Manager
+- APM
+- Product Analyst
+- Operations Associate
+- Operations Executive
+- Management Trainee
+- Graduate Engineer Trainee
+- GET
+- Graduate Trainee
+- Trainee Engineer
+- Associate Consultant
+- Research Analyst
+university: ''
 work_authorization: Indian citizen, no visa needed for India roles
-salary_band: ""
-notes: Prefer product companies with Bengaluru or India-remote teams.
+years_experience: 0

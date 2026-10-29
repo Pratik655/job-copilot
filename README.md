@@ -1,44 +1,75 @@
-# job-copilot
+# job-copilot — Advanced B.Tech CSE & Multi-City Edition
 
-Review-first copilot for Bangalore software-engineer job search. It collects listings, scores them against your profile, drafts an application packet, and **never submits** — you approve, then apply on the original site.
+Review-first AI copilot for **B.Tech Computer Science & Engineering (2026 Fresher)** job search across **Bangalore, Hyderabad, Pune, Delhi-NCR, Mumbai, Chennai, and Remote India**.
 
-## How it works
+It automatically aggregates listings from public ATS boards (Greenhouse / Lever / Ashby), evaluates eligibility and technical overlap, generates customized application packets (cover letter, domain resume bullets, screening Q&A, and referral notes), and lets you review everything before applying on the official company careers page.
 
-1. **Ingest** public Greenhouse / Lever / Ashby boards from `watchlist.yaml`, plus anything you drop in `inbox/` or paste in the UI (LinkedIn, Naukri, Indeed, Wellfound, recruiter mail).
-2. **Score + draft** a cover note, resume bullets, screening answers, and a referral message.
-3. **You review** at http://127.0.0.1:8765 — edit, approve, skip, or snooze. Approve opens nothing automatically except your own click on the listing URL.
+---
 
-There is no auto-apply. LinkedIn / Naukri / Indeed do not offer a personal apply API; treating them as paste sources avoids account bans and junk applications.
+## What's New & Advanced
 
-## Setup
+1. **B.Tech CSE Comprehensive Entry-Level Coverage**:
+   - **Software Engineering / SDE-1**: SDE-1, Associate Software Engineer, Junior Software Engineer, Member of Technical Staff (MTS-1), Application Engineer.
+   - **Full Stack & Web**: Node.js Developer, Python Developer, React Developer, Full Stack Engineer.
+   - **Data Science & AI**: Data Analyst, Data Science Intern, Machine Learning Engineer, Junior Data Engineer, BI Analyst.
+   - **Quality & Automation (SDET)**: Software Development Engineer in Test (SDET), QA Automation Engineer, Software Test Engineer.
+   - **Cloud, DevOps & Systems**: Cloud Engineer, DevOps Associate, Site Reliability Engineer (SRE), Systems Engineer.
+   - **Graduate Trainee / Campus**: Graduate Engineer Trainee (GET), Trainee Engineer, Technology Analyst.
 
-```bash
-cd ~/Desktop/job-copilot
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -e .
-cp .env.example .env
+2. **Multi-City & Location Intelligence**:
+   - Covers all major Indian tech hubs: **Bangalore / Bengaluru**, **Hyderabad**, **Pune**, **Delhi-NCR (Gurgaon/Noida)**, **Mumbai**, **Chennai**, **Kolkata**, **Ahmedabad**, **Chandigarh/Mohali**, **Kochi**, **Trivandrum**, and **Remote India (WFH)**.
+   - Smart city normalizer maps micro-locations (e.g. Hitec City, Hinjewadi, Whitefield, OMR, Cyberabad) to canonical tech hubs.
+
+3. **4-Pillar Match Breakdown Engine**:
+   - **Degree & Batch Fit (25 pts)**: Checks B.Tech/B.E. CSE/IT eligibility and 2026 fresher allowance.
+   - **Role & Seniority Fit (25 pts)**: Prioritizes early-career entry points while filtering out senior/lead roles (>2 yrs exp).
+   - **Tech Stack Overlap (30 pts)**: Overlap with Node.js, Express, MongoDB, JavaScript, Python, Pandas, NumPy, REST APIs, Git, and C++.
+   - **Location Preference (20 pts)**: High weighting for Bangalore, Remote India, and open Indian tech hubs.
+
+4. **Modern Glassmorphic Web Dashboard**:
+   - **Filter Toolbar**: Instant search, City filter dropdown, Domain filter dropdown, Min Score filter, and Status selector.
+   - **Fit Analysis Card**: Shows detailed ratings for each pillar, matched skills tags, and clear explanation.
+   - **1-Click Copy Packet**: Copy Cover Letter, Domain-Specific Bullets, or Referral Message with one click.
+   - **Profile & Search Scope Drawer**: Edit candidate details, open cities, and target domains directly in the browser.
+   - **Export CSV / JSON**: Download applications spreadsheet for tracking.
+   - **Re-Score All**: Re-evaluate all jobs against the latest scoring criteria in one click.
+
+---
+
+## Quick Start
+
+### Windows (PowerShell / Command Prompt)
+```powershell
+cd ~\Desktop\job-copilot
+.\.venv\Scripts\Activate.ps1
+python -m jobcopilot serve
 ```
 
-Edit `profile/profile.yaml` and `profile/resume.md`. For Cursor-written drafts, put `CURSOR_API_KEY` in `.env` (Dashboard → Integrations). Scoring then uses a local Cursor agent (`composer-2.5` by default) on the job text you already ingested — it does not scrape LinkedIn/Naukri. `OPENAI_API_KEY` is an optional fallback. With neither key, scoring is keyword overlap plus templates.
-
-Cursor agents are slower than a single chat call. Prefer them on pasted roles and a small queue; a full watchlist `run` with Cursor enabled will take a while.
-
-## Daily loop
-
+### Review UI & CLI Commands
 ```bash
-cd ~/Desktop/job-copilot
-make findjob
+# Start Web UI (http://127.0.0.1:8765)
+python -m jobcopilot serve
+
+# Pull public ATS boards and score new listings
+python -m jobcopilot run
+
+# Re-score all jobs against updated profile & filters
+python -m jobcopilot rescore
+
+# Export applied or queued jobs to CSV
+python -m jobcopilot export --format csv --status queued --out queued_jobs.csv
+
+# Ingest a single pasted job description from LinkedIn / Naukri
+python -m jobcopilot paste samples/pasted-jd.md --url "https://company.com/job"
 ```
 
-That ingests the watchlist and `inbox/`, scores new jobs, then opens **http://127.0.0.1:8765**. Use `make serve` if you only want the UI. Cursor scoring of a large new batch will take a while.
+---
 
-Keyboard in the UI: `j` / `k` move, `a` approve, `x` skip, `c` copy cover, `p` paste listing.
+## Keyboard Shortcuts in Web UI
 
-Paste a single JD:
-
-```bash
-python -m jobcopilot paste inbox/sample-bangalore-swe.md --url 'https://example.com/jobs/…'
-```
-
-Add companies to `watchlist.yaml` using the slug from the public careers URL (`boards.greenhouse.io/stripe` → `slug: stripe`, `ats: greenhouse`).
+- `j` / `k` — Move selection down / up through job list
+- `a` — Approve application packet
+- `x` — Skip job
+- `c` — Copy cover letter to clipboard
+- `p` — Open "Paste Listing" drawer
+- `Escape` — Close any open drawer

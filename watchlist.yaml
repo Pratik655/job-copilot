@@ -1,78 +1,156 @@
-# Public ATS boards only (Greenhouse / Lever / Ashby). Add slugs as you find them
-# on a company's careers URL, e.g. boards.greenhouse.io/stripe → slug: stripe
+# Public ATS boards (Greenhouse / Lever / Ashby)
+# Curated for early-career & graduate tech roles across Indian hubs
+# Active operations in Bangalore / India & remote India
+
 companies:
-  - name: Stripe
-    ats: greenhouse
-    slug: stripe
-  - name: Databricks
-    ats: greenhouse
-    slug: databricks
-  - name: Cloudflare
-    ats: greenhouse
-    slug: cloudflare
-  - name: Twilio
-    ats: greenhouse
-    slug: twilio
-  - name: MongoDB
-    ats: greenhouse
-    slug: mongodb
-  - name: Elastic
-    ats: greenhouse
-    slug: elastic
-  - name: Grafana Labs
-    ats: greenhouse
-    slug: grafanalabs
-  - name: Sentry
-    ats: greenhouse
-    slug: sentry
-  - name: GitLab
-    ats: greenhouse
-    slug: gitlab
-  - name: Uber
-    ats: greenhouse
-    slug: uber
-  - name: Atlassian
-    ats: greenhouse
-    slug: atlassian
-  - name: Freshworks
-    ats: greenhouse
-    slug: freshworks
-  - name: BrowserStack
-    ats: greenhouse
-    slug: browserstack
+  # ============================================================================
+  # High-Priority Fresher, Campus & SDE-1 Recruits (Bangalore & India Hubs)
+  # ============================================================================
   - name: Postman
     ats: greenhouse
     slug: postman
+  - name: HackerRank
+    ats: greenhouse
+    slug: hackerrank
+  - name: BrowserStack
+    ats: greenhouse
+    slug: browserstack
+  - name: Tekion
+    ats: ashby
+    slug: tekion
+  - name: Thoughtworks
+    ats: greenhouse
+    slug: thoughtworks
+  - name: Groww
+    ats: greenhouse
+    slug: groww
+  - name: Meesho
+    ats: lever
+    slug: meesho
+  - name: CRED
+    ats: lever
+    slug: cred
+  - name: Slice
+    ats: greenhouse
+    slug: slice
+  - name: InMobi
+    ats: greenhouse
+    slug: inmobi
+  - name: Glance
+    ats: greenhouse
+    slug: glance
+  - name: DevRev
+    ats: greenhouse
+    slug: devrev
+  - name: Zeta
+    ats: lever
+    slug: zeta
+  - name: Freshworks
+    ats: greenhouse
+    slug: freshworks
   - name: Chargebee
     ats: greenhouse
     slug: chargebee
-  - name: Rippling
+  - name: Atlassian
     ats: greenhouse
-    slug: rippling
-  - name: Notion
+    slug: atlassian
+  - name: Rubrik
+    ats: greenhouse
+    slug: rubrik
+  - name: HighRadius
+    ats: greenhouse
+    slug: highradius
+  - name: Fivetran
+    ats: greenhouse
+    slug: fivetran
+  - name: Harness
+    ats: greenhouse
+    slug: harnessinc
+  - name: Druva
+    ats: greenhouse
+    slug: druva
+  - name: Netskope
+    ats: greenhouse
+    slug: netskope
+  - name: Pure Storage
+    ats: greenhouse
+    slug: purestorage
+  - name: Zscaler
+    ats: greenhouse
+    slug: zscaler
+
+  # ============================================================================
+  # Modern Tech, Developer Tools, Databases & Remote-Friendly India Roles
+  # ============================================================================
+  - name: MongoDB
+    ats: greenhouse
+    slug: mongodb
+  - name: GitLab
+    ats: greenhouse
+    slug: gitlab
+  - name: Supabase
     ats: ashby
-    slug: notion
-  - name: Figma
+    slug: supabase
+  - name: PostHog
+    ats: ashby
+    slug: posthog
+  - name: SingleStore
     ats: greenhouse
-    slug: figma
-  - name: Anthropic
+    slug: singlestore
+  - name: Cockroach Labs
     ats: greenhouse
-    slug: anthropic
-  - name: OpenAI
+    slug: cockroachlabs
+  - name: Elastic
     ats: greenhouse
-    slug: openai
+    slug: elastic
   - name: Coinbase
     ats: greenhouse
     slug: coinbase
-  - name: Plaid
+  - name: Databricks
     ats: greenhouse
-    slug: plaid
-  - name: HashiCorp
+    slug: databricks
+  - name: Stripe
     ats: greenhouse
-    slug: hashicorp
-  - name: Snowflake
+    slug: stripe
+  - name: Cloudflare
     ats: greenhouse
-    slug: snowflake
-  - name: Palantir
-    ats: lever
-    slug: palantir
+    slug: cloudflare
+  - name: Notion
+    ats: ashby
+    slug: notion
+  - name: Linear
+    ats: ashby
+    slug: linear
+  - name: Vercel
+    ats: ashby
+    slug: vercel
+  - name: Samsara
+    ats: greenhouse
+    slug: samsara
+  - name: New Relic
+    ats: greenhouse
+    slug: newrelic
+  - name: Sumo Logic
+    ats: greenhouse
+    slug: sumologic
+  - name: Yugabyte
+    ats: greenhouse
+    slug: yugabyte
+  - name: Okta
+    ats: greenhouse
+    slug: okta
+  - name: Datadog
+    ats: greenhouse
+    slug: datadog
+  - name: Twilio
+    ats: greenhouse
+    slug: twilio
+  - name: PagerDuty
+    ats: greenhouse
+    slug: pagerduty
+  - name: Workato
+    ats: greenhouse
+    slug: workato
+  - name: Perplexity
+    ats: ashby
+    slug: perplexity
