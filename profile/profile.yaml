@@ -1,11 +1,11 @@
-name: Pratik Kumar
-email: pratikkumar0142@gmail.com
-phone: '7209832305'
-degree: B.Tech in Computer Science and Engineering (CSE)
+name: ''
+email: ''
+phone: ''
+degree: ''
 graduating_year: 2026
-university: Sarala Birla University
+university: ''
 target_location: ''
-current_location: Ranchi, Jharkhand
+current_location: ''
 open_to:
 - Bangalore
 - Hyderabad
@@ -16,132 +16,28 @@ open_to:
 - Kolkata
 - Ahmedabad
 - Remote India
-- Chandigarh
-- Mohali
-- Kochi
-- Trivandrum
-- Coimbatore
-- Jaipur
-- Indore
-- Bhubaneswar
-- Bengaluru
-- Hybrid Bangalore
-- Gurgaon
-- Gurugram
-- Noida
-- Navi Mumbai
 target_domains:
 - tech
 - data
 - trainee_campus
 target_titles:
 - Software Engineer
-- Software Developer
-- Graduate Software Engineer
-- Associate Software Engineer
-- Junior Software Engineer
 - SDE-1
-- SDE-I
-- SDE 1
-- Full Stack Engineer
 - Full Stack Developer
-- Web Developer
-- Frontend Engineer
-- Backend Engineer
-- Node.js Developer
 - Python Developer
-- Member of Technical Staff
-- Application Engineer
-- Systems Engineer
-- SDET
-- QA Engineer
-- DevOps Engineer
-- Associate Cloud Engineer
 - Data Analyst
-- Junior Data Analyst
-- Business Intelligence Analyst
-- Associate Data Engineer
-- Machine Learning Engineer
-- Data Science Intern
-- Business Analyst
-- Analytics Associate
-- Marketing Associate
-- Digital Marketing Associate
-- Growth Associate
-- Growth Analyst
-- Marketing Executive
-- Content Marketing Associate
-- SEO Analyst
-- Social Media Associate
-- Brand Associate
-- Product Marketing Associate
-- Business Development Associate
-- BDA
-- Business Development Executive
-- BDE
-- Inside Sales Associate
-- Account Associate
-- Customer Success Associate
-- Client Relationship Associate
-- Solutions Consultant
-- Associate Product Manager
-- APM
-- Product Analyst
-- Operations Associate
-- Operations Executive
-- Management Trainee
-- Graduate Engineer Trainee
-- GET
-- Graduate Trainee
-- Trainee Engineer
-- Associate Consultant
-- Research Analyst
 years_experience: 0
 max_experience_allowed: 2
-stack:
-- Data Analysis
-- Express
-- Express.js
-- Github
-- Machine Learning
-- MongoDB
-- Node.js
-- Numpy
-- Pandas
-- Python
-- React
-- React
-- Scikit-Learn
-summary: B.Tech Computer Science graduate with hands-on experience in MERN Stack (MongoDB,
-  Express.js, React.js, Node.js) development and data analysis. Skilled in building
-  responsive full-stack web applications, designing REST APIs, implementing JWT-based
-  authentication, and working with MongoDB databases. Strong foundation in Python-based
-  data analysis using Pandas, NumPy, and Scikit-learn. Passionate about backend development,
-  clean code, and building scalable real-world applications.
-experience_highlights:
-- UGCPL May 2025 - July 2025
-- Data Science & Machine Learning Internship Remote / Ranchi
-- Worked on Python-based data analysis using Pandas and NumPy.
+stack: []
+summary: ''
+experience_highlights: []
 projects_summary: []
 must_have: []
-nice_to_have:
-- full-stack development
-- backend development
-- data analysis
-- market research
-- digital marketing
-- problem solving
-- business communication
-deal_breakers:
-- unpaid trial projects
-- crypto-only startups with no product
-- unpaid internships
-- senior or staff roles requiring 3+ years experience
+nice_to_have: []
+deal_breakers: []
 notice_period: Immediate
 ctc_expectation: Open to discuss for entry-level / fresher roles
-work_authorization: Indian citizen, no visa needed for India roles
+work_authorization: Authorized to work in India
 salary_band: ''
-notes: Open to all early-career and graduate entry paths including Software Engineering
-  (SDE-1), Data Analytics, Product, Digital Marketing, Growth, Business Development,
-  Operations, and Management Trainee across major Indian cities and Remote India.
+notes: ''
 resume: ''

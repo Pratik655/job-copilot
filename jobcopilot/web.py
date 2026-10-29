@@ -320,6 +320,19 @@ def api_save_parsed_resume(body: ResumeSaveIn) -> dict:
     }
 
 
+@app.post("/api/profile/reset")
+def api_reset_profile() -> dict:
+    from jobcopilot.profile import reset_to_clean_profile
+    clean = reset_to_clean_profile()
+    with connect() as conn:
+        conn.execute("DELETE FROM drafts")
+        conn.commit()
+    return {
+        "status": "reset",
+        "profile": clean,
+    }
+
+
 @app.get("/api/autosync")
 def api_get_autosync() -> dict:
     return get_autosync_status()

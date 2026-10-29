@@ -166,19 +166,10 @@ def test_resume_upload_and_auto_match(client, tmp_path):
     assert save_data["rescored"]["total_rescored"] > 0
 
     # Clean up test artifact to leave profile clean for new candidates
-    from jobcopilot.paths import get_profile_path, get_resume_path, get_db_path
-    import yaml
+    from jobcopilot.profile import reset_to_clean_profile
+    from jobcopilot.paths import get_db_path
     import sqlite3
-    p_path = get_profile_path()
-    r_path = get_resume_path()
-    if p_path.exists():
-        data = yaml.safe_load(p_path.read_text(encoding="utf-8")) or {}
-        data["name"] = ""
-        data["degree"] = ""
-        data["university"] = ""
-        p_path.write_text(yaml.safe_dump(data), encoding="utf-8")
-    if r_path.exists():
-        r_path.write_text("", encoding="utf-8")
+    reset_to_clean_profile()
     with sqlite3.connect(get_db_path()) as conn:
         conn.execute("DELETE FROM drafts")
         conn.commit()

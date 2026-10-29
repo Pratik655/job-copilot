@@ -145,11 +145,16 @@ def load_profile(
         degree=str(data.get("degree") or ""),
         graduating_year=int(data.get("graduating_year") or 2026),
         university=str(data.get("university") or ""),
-        target_location=str(data.get("target_location", "Bangalore")),
+        target_location=str(data.get("target_location", "")),
         current_location=str(data.get("current_location", "")),
-        open_to=list(data.get("open_to") or []),
-        target_domains=list(data.get("target_domains") or []),
-        target_titles=list(data.get("target_titles") or []),
+        open_to=list(data.get("open_to") or [
+            "Bangalore", "Hyderabad", "Pune", "Delhi-NCR", "Mumbai",
+            "Chennai", "Kolkata", "Ahmedabad", "Remote India"
+        ]),
+        target_domains=list(data.get("target_domains") or ["tech", "data", "trainee_campus"]),
+        target_titles=list(data.get("target_titles") or [
+            "Software Engineer", "SDE-1", "Full Stack Developer", "Python Developer", "Data Analyst"
+        ]),
         years_experience=int(data.get("years_experience") or 0),
         max_experience_allowed=int(data.get("max_experience_allowed") or 2),
         stack=list(data.get("stack") or []),
@@ -177,3 +182,49 @@ def save_profile(data: dict[str, Any], profile_path: Path | None = None) -> None
     except OSError:
         tmp_path = Path("/tmp") / "profile.yaml"
         tmp_path.write_text(content, encoding="utf-8")
+
+
+def reset_to_clean_profile(profile_path: Path | None = None, resume_path: Path | None = None) -> dict[str, Any]:
+    """Completely wipe out all candidate data, returning workspace to a blank slate."""
+    profile_path = profile_path or get_profile_path()
+    resume_path = resume_path or get_resume_path()
+    clean_data = {
+        "name": "",
+        "email": "",
+        "phone": "",
+        "degree": "",
+        "graduating_year": 2026,
+        "university": "",
+        "target_location": "",
+        "current_location": "",
+        "open_to": [
+            "Bangalore", "Hyderabad", "Pune", "Delhi-NCR", "Mumbai",
+            "Chennai", "Kolkata", "Ahmedabad", "Remote India"
+        ],
+        "target_domains": ["tech", "data", "trainee_campus"],
+        "target_titles": [
+            "Software Engineer", "SDE-1", "Full Stack Developer", "Python Developer", "Data Analyst"
+        ],
+        "years_experience": 0,
+        "max_experience_allowed": 2,
+        "stack": [],
+        "summary": "",
+        "experience_highlights": [],
+        "projects_summary": [],
+        "must_have": [],
+        "nice_to_have": [],
+        "deal_breakers": [],
+        "notice_period": "Immediate",
+        "ctc_expectation": "Open to discuss for entry-level / fresher roles",
+        "work_authorization": "Authorized to work in India",
+        "salary_band": "",
+        "notes": "",
+        "resume": "",
+    }
+    save_profile(clean_data, profile_path=profile_path)
+    if resume_path.exists():
+        try:
+            resume_path.write_text("", encoding="utf-8")
+        except OSError:
+            pass
+    return clean_data

@@ -1739,15 +1739,25 @@ pasteSubmitBtn.addEventListener("click", async () => {
   }
 });
 
-function resetResume() {
-  hasUploadedResume = false;
-  sessionStorage.removeItem("jobcopilot_has_resume");
-  selectedJobId = null;
-  jobs = [];
-  loadPreferences();
-  loadStats();
-  switchView("preferences");
-  showToast("Workspace reset. Please upload your resume to match jobs.");
+async function resetResume() {
+  try {
+    setBusy(true, "Clearing old resume data from workspace…");
+    await api("/api/profile/reset", { method: "POST" });
+    hasUploadedResume = false;
+    sessionStorage.removeItem("jobcopilot_has_resume");
+    profileData = {};
+    currentSkills = [];
+    selectedJobId = null;
+    jobs = [];
+    await loadPreferences();
+    await loadStats();
+    setBusy(false);
+    switchView("preferences");
+    showToast("✓ All old resume data cleared. Workspace is completely fresh.");
+  } catch (err) {
+    setBusy(false);
+    console.error("Reset error:", err);
+  }
 }
 
 if (clearProfileBtn) clearProfileBtn.addEventListener("click", resetResume);

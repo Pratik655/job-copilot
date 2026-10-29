@@ -320,49 +320,55 @@ def parse_resume_text(text: str) -> dict[str, Any]:
 
 
 def save_parsed_profile(parsed: dict[str, Any], raw_text: str | None = None) -> dict[str, Any]:
-    """Save parsed resume information into profile.yaml and resume.md."""
+    """Save parsed resume information into profile.yaml and resume.md, completely replacing previous resume data."""
     from jobcopilot.paths import get_profile_path, get_resume_path
 
     profile_path = get_profile_path()
     resume_path = get_resume_path()
 
-    current = load_profile(profile_path, resume_path).to_dict()
-
-    if parsed.get("name"):
-        current["name"] = parsed["name"]
-    if parsed.get("email"):
-        current["email"] = parsed["email"]
-    if parsed.get("phone"):
-        current["phone"] = parsed["phone"]
-    if parsed.get("current_location"):
-        current["current_location"] = parsed["current_location"]
-    if parsed.get("degree"):
-        current["degree"] = parsed["degree"]
-    if parsed.get("graduating_year"):
-        current["graduating_year"] = int(parsed["graduating_year"])
-    if parsed.get("university"):
-        current["university"] = parsed["university"]
-    if parsed.get("summary"):
-        current["summary"] = parsed["summary"]
-    if parsed.get("experience_highlights"):
-        current["experience_highlights"] = parsed["experience_highlights"]
-    if parsed.get("projects_summary"):
-        current["projects_summary"] = parsed["projects_summary"]
-    if parsed.get("skills"):
-        current["stack"] = parsed["skills"]
-    if parsed.get("recommended_domains"):
-        current["target_domains"] = parsed["recommended_domains"]
+    new_profile = {
+        "name": parsed.get("name") or "",
+        "email": parsed.get("email") or "",
+        "phone": parsed.get("phone") or "",
+        "degree": parsed.get("degree") or "",
+        "graduating_year": int(parsed.get("graduating_year") or 2026),
+        "university": parsed.get("university") or "",
+        "target_location": parsed.get("target_location") or "",
+        "current_location": parsed.get("current_location") or "",
+        "open_to": [
+            "Bangalore", "Hyderabad", "Pune", "Delhi-NCR", "Mumbai",
+            "Chennai", "Kolkata", "Ahmedabad", "Remote India"
+        ],
+        "target_domains": parsed.get("recommended_domains") or ["tech", "data", "trainee_campus"],
+        "target_titles": [
+            "Software Engineer", "SDE-1", "Full Stack Developer", "Python Developer", "Data Analyst"
+        ],
+        "years_experience": 0,
+        "max_experience_allowed": 2,
+        "stack": parsed.get("skills") or [],
+        "summary": parsed.get("summary") or "",
+        "experience_highlights": parsed.get("experience_highlights") or [],
+        "projects_summary": parsed.get("projects_summary") or [],
+        "must_have": [],
+        "nice_to_have": [],
+        "deal_breakers": [],
+        "notice_period": "Immediate",
+        "ctc_expectation": "Open to discuss for entry-level / fresher roles",
+        "work_authorization": "Authorized to work in India",
+        "salary_band": "",
+        "notes": "",
+        "resume": raw_text or "",
+    }
 
     # Write profile.yaml
-    save_profile(current, profile_path=profile_path)
+    save_profile(new_profile, profile_path=profile_path)
 
-    # Write resume.md if raw text is provided
-    if raw_text:
-        try:
-            resume_path.parent.mkdir(parents=True, exist_ok=True)
-            resume_path.write_text(raw_text, encoding="utf-8")
-        except OSError:
-            tmp_resume = Path("/tmp") / "resume.md"
-            tmp_resume.write_text(raw_text, encoding="utf-8")
+    # Overwrite resume.md with the new raw text
+    try:
+        resume_path.parent.mkdir(parents=True, exist_ok=True)
+        resume_path.write_text(raw_text or "", encoding="utf-8")
+    except OSError:
+        tmp_resume = Path("/tmp") / "resume.md"
+        tmp_resume.write_text(raw_text or "", encoding="utf-8")
 
-    return current
+    return new_profile
