@@ -89,6 +89,8 @@ class AutoSyncToggleIn(BaseModel):
 
 class ProfileUpdate(BaseModel):
     name: str | None = None
+    email: str | None = None
+    phone: str | None = None
     target_location: str | None = None
     open_to: list[str] | None = None
     target_domains: list[str] | None = None
@@ -98,6 +100,9 @@ class ProfileUpdate(BaseModel):
     graduating_year: int | None = None
     university: str | None = None
     current_location: str | None = None
+    summary: str | None = None
+    experience_highlights: list[str] | None = None
+    projects_summary: list[str] | None = None
     notice_period: str | None = None
     notes: str | None = None
 

@@ -49,110 +49,106 @@ def _heuristic(job: dict[str, Any], profile: dict[str, Any]) -> dict[str, Any]:
         "work_authorization": "Indian citizen, authorized to work in India",
     }
 
-    # Helper to generate tailored packets across Tech, Marketing, Sales, Product & Ops
+    # Helper to generate tailored packets using the candidate's real resume profile
     def _generate_packets(hits: list[str], domain_key: str) -> tuple[str, list[str], str]:
-        hit_str = ", ".join(hits[:4]) if hits else "analytical problem solving, data tools, and communication"
+        hit_str = ", ".join(hits[:5]) if hits else ", ".join(profile.get("stack", [])[:5]) or "problem solving, analytics, and project execution"
 
-        if domain_key == "marketing":
+        candidate_summary = (profile.get("summary") or "").strip()
+        candidate_exp = profile.get("experience_highlights") or []
+        candidate_proj = profile.get("projects_summary") or []
+        candidate_stack = profile.get("stack") or []
+
+        # 1. Build Hook / Narrative from candidate's real resume data
+        if candidate_summary:
+            if candidate_exp and candidate_exp[0] not in candidate_summary:
+                hook = f"{candidate_summary}\n\nMy practical background includes hands-on experience in {candidate_exp[0]}."
+            else:
+                hook = candidate_summary
+        elif candidate_exp:
+            exp_text = "; ".join(candidate_exp[:2])
+            hook = f"My hands-on background includes {exp_text}. I bring a strong foundation in {hit_str} with a focus on delivering reliable, high-quality results."
+        elif domain_key == "marketing":
             hook = (
-                f"I bring a data-driven, analytical engineering mindset to marketing and growth. "
-                f"With hands-on experience in data analysis (Python, Pandas, EDA) and digital web applications, "
+                f"I bring a data-driven, analytical mindset to marketing and growth. "
+                f"With hands-on experience in data analysis and digital applications, "
                 f"I excel at interpreting audience trends, creating engaging digital content, and optimizing marketing campaigns."
-            )
-            bullets = [
-                "Conducted data-driven trend and engagement analysis using Python and Pandas on application datasets.",
-                "Built responsive, interactive web applications demonstrating strong understanding of digital user experience (UX) and engagement.",
-                "Analytical problem solver capable of translating product value into clear, compelling customer-facing narratives.",
-                "Quick learner eager to execute growth campaigns, social media strategy, and digital outreach.",
-            ]
-            referral = (
-                f"Hi — I'm {name}, an early-career candidate with an analytical background interested in the {title} role at {company}. "
-                f"I bring strong data-driven thinking and digital marketing enthusiasm. I would love to connect! Thanks!"
             )
         elif domain_key == "sales_bd":
             hook = (
-                f"I combine technical fluency with strong interpersonal communication and high energy. "
-                f"My engineering background allows me to grasp complex products quickly and articulate business value "
-                f"clearly to prospective clients, making me well-suited for business development and client-facing roles."
-            )
-            bullets = [
-                "Strong business communication and consultative presentation skills, with ability to explain technology effortlessly.",
-                "Analytical mindset developed through engineering projects, enabling data-backed market research and lead prioritization.",
-                "Proactive, goal-oriented collaborator with experience working under deadlines during project sprints.",
-                "Eager to drive revenue growth, manage client relationships, and contribute to company targets.",
-            ]
-            referral = (
-                f"Hi — I'm {name}, an enthusiastic candidate looking at the {title} opening at {company}. "
-                f"I bring strong communication, technical literacy, and a high-energy client focus. Would love to connect!"
+                f"I combine strong interpersonal communication with fast learning and high energy. "
+                f"I can grasp products quickly and articulate business value clearly to prospective clients, "
+                f"making me well-suited for business development, sales, and client-facing roles."
             )
         elif domain_key in ("product_ops", "consulting_biz"):
             hook = (
-                f"I combine analytical thinking with operational rigor and technical understanding. "
-                f"I enjoy bridging the gap between business goals, customer needs, and technical implementation "
-                f"to drive smooth operations and impactful product workflows."
-            )
-            bullets = [
-                "Analyzed application performance and user patterns using Python data preprocessing workflows.",
-                "Architected modular web applications, developing clear intuition for user journeys and product edge cases.",
-                "Strong structured problem solving and cross-functional collaboration skills.",
-                "Detail-oriented and eager to streamline processes, coordinate projects, and support business operations.",
-            ]
-            referral = (
-                f"Hi — I'm {name}, an applicant interested in the {title} role at {company}. "
-                f"I bring strong analytical and operational problem-solving skills. Would appreciate connecting! Thanks!"
+                f"I combine analytical thinking with operational rigor and problem solving. "
+                f"I enjoy bridging the gap between business goals, customer needs, and execution "
+                f"to drive smooth operations and impactful project workflows."
             )
         elif domain_key == "data":
             hook = (
-                f"My background centers on data analytics, Python data workflows, and problem solving. "
-                f"I conduct exploratory data analysis (EDA) using Pandas and NumPy, cleaning datasets and extracting actionable business metrics."
-            )
-            bullets = [
-                "Performed end-to-end data cleaning, preprocessing, and exploratory analysis (EDA) using Pandas and NumPy.",
-                "Built Python scripts to automate repetitive data transformations and generate summary insights.",
-                "Strong grasp of SQL, database modeling, and quantitative problem solving.",
-                "Fast learner with keen interest in business intelligence, dashboarding, and metric tracking.",
-            ]
-            referral = (
-                f"Hi — I'm {name}, an applicant interested in the {title} analytics role at {company}. "
-                f"I have hands-on experience in Python data analysis and EDA. Would love to connect!"
+                f"My background centers on data analytics, quantitative workflows, and problem solving, "
+                f"cleaning datasets and extracting actionable business metrics."
             )
         else:
             hook = (
-                f"My technical background centers on full-stack web engineering and Python data analysis, "
-                f"aligning with your work around {hit_str}. My hands-on work includes deploying modern web applications, "
-                f"RESTful API architectures, and data preprocessing pipelines."
+                f"My technical background centers on {hit_str}, aligning directly with your requirements for {title}. "
+                f"I focus on clean architecture, practical problem solving, and disciplined development workflows."
             )
-            bullets = [
-                "Built and deployed full-stack web applications featuring complete CRUD operations and clean component architecture.",
-                "Conducted data preprocessing and exploratory data analysis (EDA) using Python, Pandas, and NumPy.",
-                "Developed interactive browser-based web applications using modern JavaScript (ES6+), DOM logic, and clean CSS.",
-                "Solid foundation in software fundamentals, RESTful APIs, and collaborative Git/GitHub workflows.",
-            ]
-            referral = (
-                f"Hi — I'm {name}, an applicant interested in the {title} role at {company}. "
-                f"I have hands-on experience in full-stack development and Python data analysis. I'd love to connect! Thanks!"
-            )
+
+        # 2. Build Bullets from candidate's real resume
+        bullets = []
+        if candidate_exp:
+            for exp_item in candidate_exp[:2]:
+                bullets.append(exp_item)
+        if candidate_proj:
+            for proj_item in candidate_proj[:2]:
+                bullets.append(proj_item)
+
+        fallback_bullets = [
+            f"Hands-on competency in {hit_str}, applied toward building reliable solutions.",
+            f"Strong structured problem solving and fast learning ability, adapting rapidly to new tools and environments.",
+            f"Proactive communicator and collaborative team player with disciplined version control and project organization.",
+            f"Eager to contribute immediately to {company}'s roadmap and team targets.",
+        ]
+        for fb in fallback_bullets:
+            if len(bullets) >= 4:
+                break
+            if fb not in bullets:
+                bullets.append(fb)
+
+        # 3. Referral Message
+        referral = (
+            f"Hi — I'm {name}, an enthusiastic applicant interested in the {title} role at {company}. "
+            f"I have hands-on experience in {hit_str}. Would love to connect! Thanks!"
+        )
 
         uni_str = f" from {university}" if university else ""
         year_str = f" graduating in {grad_year}" if grad_year else ""
+        deg_str = f", a {degree}{year_str}{uni_str}" if degree else (f"{uni_str}" if university else "")
         email = profile.get("email") or ""
         phone = profile.get("phone") or ""
+        location_candidate = profile.get("current_location") or normalized_city_name
+
         contacts = []
         if email:
             contacts.append(f"Email: {email}")
         if phone:
             contacts.append(f"Phone: {phone}")
+        if location_candidate:
+            contacts.append(f"Location: {location_candidate}")
         contacts_footer = ("\n" + " | ".join(contacts)) if contacts else ""
 
         cover = (
-            f"Dear Hiring Team,\n\n"
-            f"I am {name}, a {degree} student{year_str}{uni_str}, "
-            f"actively seeking early-career opportunities. "
-            f"I am excited to submit my application for the {title} role at {company}.\n\n"
+            f"Dear {company} Hiring Team,\n\n"
+            f"I am {name}{deg_str}, "
+            f"actively applying for the {title} position at {company}.\n\n"
             f"{hook}\n\n"
-            f"I am adaptable, fast at learning new domains, and passionate about creating tangible impact. "
-            f"I would welcome the opportunity to discuss how my skill set can support {company}'s goals in {normalized_city_name}.\n\n"
-            f"Thank you for your time and consideration,\n{name}{contacts_footer}\n"
+            f"In this role, I focus on delivering quality execution in {hit_str}. "
+            f"I am adaptable, fast at learning new technologies, and passionate about creating tangible impact for {company}. "
+            f"I welcome the opportunity to discuss how my skill set and enthusiasm align with your team's goals.\n\n"
+            f"Thank you for your time and consideration,\n\n"
+            f"Sincerely,\n{name}{contacts_footer}\n"
         )
         return cover, bullets, referral
 
@@ -377,7 +373,7 @@ def _task_prompt(job: dict[str, Any], profile: dict[str, Any]) -> str:
         "1. Strictly skip (>2 years required, senior, lead, manager, director) with score <30.\n"
         "2. Queue early career/graduate/fresher roles in Indian cities or Remote India.\n"
         "3. Return ONLY valid JSON with keys: score (0-100), decision (queue|skip), why_apply, why_skip, cover_letter, resume_bullets, screening_answers, referral_message, skills_matched.\n\n"
-        f"PROFILE:\n{json.dumps({k: profile[k] for k in profile if k != 'resume'}, indent=2)}\n\n"
+        f"PROFILE:\n{json.dumps({k: profile[k] for k in profile if k != 'resume'}, indent=2)}\n\n"        f"CANDIDATE RESUME / BACKGROUND:\n{str(profile.get('resume', ''))[:3000]}\n\n"
         f"JOB:\n{json.dumps({k: job.get(k) for k in ('company', 'title', 'location', 'url', 'description')}, indent=2)[:10000]}"
     )
 

@@ -270,7 +270,10 @@ async function loadPreferences() {
     availableDomains = data.all_domains || [];
 
     const tag = document.getElementById("scanStatusTag");
-    if (hasUploadedResume) {
+    const hasData = Boolean(profileData.name || data.has_existing_resume);
+    if (hasUploadedResume || hasData) {
+      hasUploadedResume = true;
+      sessionStorage.setItem("jobcopilot_has_resume", "true");
       profName.value = profileData.name || "";
       profDegree.value = profileData.degree || "";
       profYear.value = profileData.graduating_year || 2026;
@@ -628,14 +631,26 @@ function applyParsedData(parsed) {
   if (parsed.degree) profDegree.value = parsed.degree;
   if (parsed.graduating_year) profYear.value = parsed.graduating_year;
   if (parsed.university) profUniversity.value = parsed.university;
+  if (parsed.current_location) profCurrentLoc.value = parsed.current_location;
   if (parsed.skills && Array.isArray(parsed.skills)) {
-    currentSkills = Array.from(new Set([...currentSkills, ...parsed.skills]));
+    currentSkills = [...parsed.skills];
     renderSkillsChips();
   }
+  // Store all candidate metadata directly in profileData
+  profileData.name = parsed.name || profileData.name;
+  profileData.email = parsed.email || profileData.email;
+  profileData.phone = parsed.phone || profileData.phone;
+  profileData.degree = parsed.degree || profileData.degree;
+  profileData.graduating_year = parsed.graduating_year || profileData.graduating_year;
+  profileData.university = parsed.university || profileData.university;
+  profileData.current_location = parsed.current_location || profCurrentLoc.value || profileData.current_location;
+  profileData.summary = parsed.summary || profileData.summary;
+  profileData.experience_highlights = parsed.experience_highlights || profileData.experience_highlights;
+  profileData.projects_summary = parsed.projects_summary || profileData.projects_summary;
+  profileData.stack = currentSkills;
+
   if (parsed.recommended_domains && Array.isArray(parsed.recommended_domains)) {
-    profileData.target_domains = Array.from(
-      new Set([...(profileData.target_domains || []), ...parsed.recommended_domains])
-    );
+    profileData.target_domains = Array.from(new Set(parsed.recommended_domains));
     renderDomainCards();
   }
   const tag = document.getElementById("scanStatusTag");
@@ -649,10 +664,15 @@ function applyParsedData(parsed) {
 saveAndContinueBtn.addEventListener("click", async () => {
   const payload = {
     name: profName.value.trim(),
+    email: profileData.email || "",
+    phone: profileData.phone || "",
     degree: profDegree.value.trim(),
     graduating_year: parseInt(profYear.value, 10) || 2026,
     university: profUniversity.value.trim(),
     current_location: profCurrentLoc.value.trim(),
+    summary: profileData.summary || "",
+    experience_highlights: profileData.experience_highlights || [],
+    projects_summary: profileData.projects_summary || [],
     stack: currentSkills,
     open_to: getSelectedCities(),
     target_domains: getSelectedDomains(),
@@ -1277,7 +1297,7 @@ function renderExecutiveCoverLetter(rawText, job) {
   const jobCity = currentPacketJob?.city || currentPacketJob?.location || "Flexible / Remote";
 
   if (clDocSenderName) clDocSenderName.textContent = name.toUpperCase();
-  if (clDocSenderTitle) clDocSenderTitle.textContent = `${degree} · Class of ${year}`;
+  const headerParts = [degree, univ, year ? `Class of ${year}` : ""].filter(Boolean); if (clDocSenderTitle) clDocSenderTitle.textContent = headerParts.join(" · ") || "Candidate";
   if (clDocEmailText) clDocEmailText.textContent = email;
   if (clDocPhoneText) clDocPhoneText.textContent = phone;
   if (clDocLocationText) clDocLocationText.textContent = location;
@@ -1340,50 +1360,76 @@ function renderExecutiveCoverLetter(rawText, job) {
 
 function generateCoverLetterByTone(tone, job) {
   const name = profName?.value?.trim() || profileData?.name || "Candidate Name";
-  const degree = profDegree?.value?.trim() || profileData?.degree || "Degree Program";
-  const year = profYear?.value?.trim() || profileData?.graduating_year || new Date().getFullYear().toString();
-  const univ = profUniversity?.value?.trim() || profileData?.university || "University";
-  const company = job?.company || "the company";
-  const title = job?.title || "Software Engineering Role";
+  const degree = profDegree?.value?.trim() || profileData?.degree || "Candidate";
+  const year = profYear?.value?.trim() || profileData?.graduating_year || "";
+  const univ = profUniversity?.value?.trim() || profileData?.university || "";
+  const location = profCurrentLoc?.value?.trim() || profileData?.current_location || "";
+  const email = profileData?.email || "";
+  const phone = profileData?.phone || "";
+  const company = job?.company || "Hiring Team";
+  const title = job?.title || "Position";
+
+  const allSkills = (currentSkills && currentSkills.length) ? currentSkills : (profileData?.stack || []);
   const skills = (job?.skills_matched && job.skills_matched.length)
-    ? job.skills_matched.slice(0, 4).join(", ")
-    : "full-stack development, modern JavaScript, and Python data analysis";
+    ? job.skills_matched.slice(0, 5).join(", ")
+    : (allSkills.slice(0, 5).join(", ") || "problem solving, execution, and collaborative delivery");
+
+  const summary = (profileData?.summary || "").trim();
+  const expHighlights = profileData?.experience_highlights || [];
+  const projHighlights = profileData?.projects_summary || [];
+
+  let backgroundNarrative = "";
+  if (summary) {
+    backgroundNarrative = summary;
+  } else if (expHighlights.length) {
+    backgroundNarrative = `My practical background includes hands-on experience in ${expHighlights.slice(0, 2).join("; ")}.`;
+  } else {
+    backgroundNarrative = `My technical background centers on ${skills}, focusing on clean execution, disciplined workflows, and structured problem solving.`;
+  }
+
+  const degLine = [degree, univ, year ? `Class of ${year}` : ""].filter(Boolean).join(" · ");
+  const contactParts = [email, phone, location].filter(Boolean).join(" | ");
+  const signoffBlock = contactParts ? `${name}\n${contactParts}` : name;
 
   if (tone === "tech") {
     return (
       `Dear ${company} Hiring Team,\n\n` +
-      `I am writing to submit my application for the ${title} position at ${company}. As a ${degree} student graduating in ${year} from ${univ}, my core technical engineering focuses on ${skills}.\n\n` +
-      `My hands-on experience includes developing and deploying full-stack web architectures utilizing Node.js, Express, and MongoDB with complete RESTful API integration, as well as building data preprocessing pipelines with Python, Pandas, and NumPy. I prioritize clean component architecture, scalable design patterns, and test-driven reliability.\n\n` +
-      `I am eager to bring this solid engineering foundation to ${company} and actively contribute to your technical roadmap. I look forward to discussing how my skills and problem-solving mindset align with your engineering priorities.\n\n` +
-      `Thank you for your time and consideration,\n${name}`
+      `I am writing to submit my application for the ${title} position at ${company}. As a ${degLine || "motivated candidate"}, my core focus centers on ${skills}.\n\n` +
+      `${backgroundNarrative}\n\n` +
+      `I prioritize reliable component architecture, disciplined development practices, and fast domain comprehension. I am eager to actively contribute to ${company}'s technical roadmap and look forward to discussing how my skills align with your engineering priorities.\n\n` +
+      `Thank you for your time and consideration,\n\nSincerely,\n${signoffBlock}`
     );
   } else if (tone === "enthusiastic") {
     return (
       `Dear ${company} Hiring Team,\n\n` +
-      `I am thrilled to apply for the ${title} opportunity at ${company}! As a final-year ${degree} graduate from ${univ} (Class of ${year}), I have been closely following ${company}'s impressive growth and high-impact engineering culture.\n\n` +
-      `I bring an energetic work ethic and practical experience across full-stack web applications and data analysis. I love tackling complex technical challenges, quickly learning new frameworks, and shipping high-quality software that creates real user value.\n\n` +
-      `Joining ${company} would be an incredible opportunity to contribute with energy and precision. I would love the chance to connect and discuss how my enthusiasm and skill set can help propel your team forward!\n\n` +
-      `Warm regards,\n${name}`
+      `I am thrilled to apply for the ${title} opportunity at ${company}! As a ${degLine || "driven candidate"}, I have been following ${company}'s impactful work and dynamic team culture.\n\n` +
+      `${backgroundNarrative}\n\n` +
+      `I bring an energetic work ethic and practical competencies across ${skills}. I love tackling challenging problems, learning rapidly, and contributing to high-impact projects that deliver measurable value.\n\n` +
+      `Joining ${company} would be an extraordinary opportunity to contribute. I would love the chance to connect and discuss how my enthusiasm and skill set can help propel your team forward!\n\n` +
+      `Warm regards,\n\n${signoffBlock}`
     );
   } else if (tone === "concise") {
+    const bulletsList = (expHighlights.length ? expHighlights.slice(0, 2) : projHighlights.slice(0, 2));
+    const bulletText = bulletsList.length
+      ? bulletsList.map((b) => `• ${b}`).join("\n") + "\n" + `• Core competencies: ${skills}`
+      : `• Core competencies: ${skills}\n• Fast domain comprehension, clean execution, and high adaptability`;
+
     return (
       `Dear ${company} Hiring Team,\n\n` +
-      `Please accept my application for the ${title} position at ${company}. I am a ${degree} candidate from ${univ} graduating in ${year}, specializing in ${skills}.\n\n` +
-      `Key qualifications include:\n` +
-      `• Full-stack web application engineering (Node.js, Express, MongoDB, REST APIs)\n` +
-      `• Python data preprocessing, exploratory analysis (EDA), and scripting\n` +
-      `• Fast domain comprehension, disciplined Git workflows, and production-first focus\n\n` +
+      `Please accept my application for the ${title} position at ${company}. I offer a solid background in ${degLine || skills}.\n\n` +
+      `Key highlights from my background:\n` +
+      `${bulletText}\n\n` +
       `I would welcome an interview to discuss how I can deliver immediate value to ${company}.\n\n` +
-      `Sincerely,\n${name}`
+      `Sincerely,\n\n${signoffBlock}`
     );
   } else {
     // Standard formal
     return (
-      `Dear Hiring Team,\n\n` +
-      `I am ${name}, a final-year ${degree} student graduating in ${year} from ${univ}, actively seeking early-career engineering opportunities. I am excited to submit my application for the ${title} role at ${company}.\n\n` +
-      `My technical background centers on full-stack web engineering and Python data analysis, aligning with your work around ${skills}. My hands-on projects include architecting full-stack Node.js and Express web services with MongoDB and building scalable end-to-end data pipelines.\n\n` +
-      `I am adaptable, fast at learning new technologies, and passionate about creating tangible impact. I would welcome the opportunity to discuss how my skill set can support ${company}'s goals.\n\n` +
-      `Thank you for your time and consideration,\n${name}`
+      `Dear ${company} Hiring Team,\n\n` +
+      `I am ${name}, a ${degLine || "candidate"}, writing to submit my application for the ${title} role at ${company}.\n\n` +
+      `${backgroundNarrative}\n\n` +
+      `In this role, my focus is on delivering quality execution in ${skills}. I am adaptable, fast at learning new technologies, and passionate about creating tangible impact for ${company}. I welcome the opportunity to discuss how my skill set and enthusiasm align with your team's goals.\n\n` +
+      `Thank you for your time and consideration,\n\nSincerely,\n${signoffBlock}`
     );
   }
 }

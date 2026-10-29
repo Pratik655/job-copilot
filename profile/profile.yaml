@@ -1,27 +1,11 @@
-ctc_expectation: Open to discuss for entry-level / fresher roles
-current_location: ''
-deal_breakers:
-- unpaid trial projects
-- crypto-only startups with no product
-- unpaid internships
-- senior or staff roles requiring 3+ years experience
-degree: ''
+name: Pratik Kumar
+email: pratikkumar0142@gmail.com
+phone: '7209832305'
+degree: B.Tech in Computer Science and Engineering (CSE)
 graduating_year: 2026
-max_experience_allowed: 2
-must_have: []
-name: ''
-nice_to_have:
-- full-stack development
-- backend development
-- data analysis
-- market research
-- digital marketing
-- problem solving
-- business communication
-notes: Open to all early-career and graduate entry paths including Software Engineering
-  (SDE-1), Data Analytics, Product, Digital Marketing, Growth, Business Development,
-  Operations, and Management Trainee across major Indian cities and Remote India.
-notice_period: Immediate
+university: Sarala Birla University
+target_location: ''
+current_location: Ranchi, Jharkhand
 open_to:
 - Bangalore
 - Hyderabad
@@ -46,20 +30,10 @@ open_to:
 - Gurugram
 - Noida
 - Navi Mumbai
-salary_band: ''
-stack:
-- Docker
-- Fastapi
-- GIT
-- Machine Learning
-- Python
-- React
-- SQL
 target_domains:
 - tech
 - data
 - trainee_campus
-target_location: ''
 target_titles:
 - Software Engineer
 - Software Developer
@@ -122,6 +96,52 @@ target_titles:
 - Trainee Engineer
 - Associate Consultant
 - Research Analyst
-university: ''
-work_authorization: Indian citizen, no visa needed for India roles
 years_experience: 0
+max_experience_allowed: 2
+stack:
+- Data Analysis
+- Express
+- Express.js
+- Github
+- Machine Learning
+- MongoDB
+- Node.js
+- Numpy
+- Pandas
+- Python
+- React
+- React
+- Scikit-Learn
+summary: B.Tech Computer Science graduate with hands-on experience in MERN Stack (MongoDB,
+  Express.js, React.js, Node.js) development and data analysis. Skilled in building
+  responsive full-stack web applications, designing REST APIs, implementing JWT-based
+  authentication, and working with MongoDB databases. Strong foundation in Python-based
+  data analysis using Pandas, NumPy, and Scikit-learn. Passionate about backend development,
+  clean code, and building scalable real-world applications.
+experience_highlights:
+- UGCPL May 2025 - July 2025
+- Data Science & Machine Learning Internship Remote / Ranchi
+- Worked on Python-based data analysis using Pandas and NumPy.
+projects_summary: []
+must_have: []
+nice_to_have:
+- full-stack development
+- backend development
+- data analysis
+- market research
+- digital marketing
+- problem solving
+- business communication
+deal_breakers:
+- unpaid trial projects
+- crypto-only startups with no product
+- unpaid internships
+- senior or staff roles requiring 3+ years experience
+notice_period: Immediate
+ctc_expectation: Open to discuss for entry-level / fresher roles
+work_authorization: Indian citizen, no visa needed for India roles
+salary_band: ''
+notes: Open to all early-career and graduate entry paths including Software Engineering
+  (SDE-1), Data Analytics, Product, Digital Marketing, Growth, Business Development,
+  Operations, and Management Trainee across major Indian cities and Remote India.
+resume: ''
